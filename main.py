@@ -54,8 +54,6 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         return "scene_game"
-                    elif event.key == pygame.K_q:
-                        self.exit_game()
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if play_btn_rect.collidepoint(event.pos):
                         return "scene_game"
