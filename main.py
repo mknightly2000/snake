@@ -2,24 +2,73 @@ import sys
 
 import pygame
 
-pygame.init()
 
-screen_width = 350
-screen_height = 500
+class Game:
+    def __init__(self):
+        self.screen_width = 350
+        self.screen_height = 500
+        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
 
-pygame.display.set_caption('Snake')
-screen = pygame.display.set_mode((screen_width, screen_height))
+        self.font_semi_bold = "fonts/PixelifySans-SemiBold.ttf"
+        self.background_color = (64, 197, 91)
 
+        pygame.init()
 
-def main():
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+    def run(self) -> None:
+        pygame.display.set_caption("Snake")
+
+        scene = "scene_menu"
+
+        while True:
+            if scene == "scene_menu":
+                scene = self.menu()
+            elif scene == "scene_game":
+                scene = self.game()
+
+    def exit_game(self) -> None:
+        print("Exiting...")
+        pygame.quit()
+        sys.exit()
+
+    def menu(self):
+        font = pygame.font.Font(self.font_semi_bold, 35)
+        menu_title = font.render("Main Menu", False, (0, 0, 0))
+
+        self.screen.fill(self.background_color)
+
+        self.screen.blit(menu_title, (10, 5))
 
         pygame.display.update()
 
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.exit_game()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_s:
+                        return "scene_game"
+                    elif event.key == pygame.K_q:
+                        self.exit_game()
+
+    def game(self):
+        font = pygame.font.Font(self.font_semi_bold, 35)
+        menu_txt = font.render("Game running...", False, (0, 0, 0))
+
+        self.screen.fill(self.background_color)
+
+        self.screen.blit(menu_txt, (10, 5))
+
+        pygame.display.update()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.exit_game()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        return "scene_menu"
+
 
 if __name__ == "__main__":
-    main()
+    game = Game()
+    game.run()
