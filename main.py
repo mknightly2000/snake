@@ -2,6 +2,7 @@ import sys
 
 import pygame
 from pygame import Vector2
+from collections import deque
 
 
 class Game:
