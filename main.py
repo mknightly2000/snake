@@ -1,10 +1,10 @@
 import sys
 
 import pygame
+from pygame import Vector2
 
 
 class Game:
-
     class Fruit:
         def __init__(self, game, fruit_type, x, y):
             self.game = game
@@ -12,9 +12,36 @@ class Game:
             self.pos = pygame.Vector2(x, y)
 
         def draw(self):
-            fruit_rect = pygame.Rect(self.pos.x * game.cell_size, self.pos.y * game.cell_size, game.cell_size, game.cell_size)
+            fruit_rect = pygame.Rect(self.pos.x * game.cell_size, self.pos.y * game.cell_size, game.cell_size,
+                                     game.cell_size)
             pygame.draw.rect(self.game.screen, pygame.Color("Red"), fruit_rect)
 
+    class Snake:
+        def __init__(self, game, x, y, initial_size, initial_orientation, color):
+            self.game = game
+            self.color = color
+            self.body = []
+
+            for i in range(initial_size):
+                if initial_orientation == "right":
+                    point = pygame.Vector2(x + i, y)
+                elif initial_orientation == "left":
+                    point = pygame.Vector2(x - i, y)
+                elif initial_orientation == "up":
+                    point = pygame.Vector2(x, y - i)
+                elif initial_orientation == "down":
+                    point = pygame.Vector2(x, y + i)
+                else:
+                    raise Exception("Invalid orientation")
+
+                self.body.append(point)
+
+        def draw(self):
+            for cell in self.body:
+                body_part_rect = pygame.Rect(cell.x * game.cell_size, cell.y * game.cell_size, game.cell_size,
+                                             game.cell_size)
+
+                pygame.draw.rect(self.game.screen, pygame.Color(self.color), body_part_rect)
 
     def __init__(self):
         self.menu_screen_width = 350
@@ -95,6 +122,8 @@ class Game:
 
         self.screen.fill(self.light_grass_color)
         self.draw_grass()
+
+        self.Snake(game, 3, 4, 2, "up", "Red").draw()
 
         pygame.display.update()
 
