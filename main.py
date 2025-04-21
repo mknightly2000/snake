@@ -32,7 +32,9 @@ class Game:
 
         def draw(self, interpolation_fraction):
             for i, cell in enumerate(self.body):
-
+                # Determine the orientation for each segment:
+                # - For the head, use the current movement direction
+                # - For other segments, use the direction to the next segment
                 if i == len(self.body) - 1:
                     cell_orientation = self.current_orientation
                 else:
@@ -51,6 +53,7 @@ class Game:
                 pygame.draw.rect(self.game.screen, pygame.Color(self.color), body_part_rect)
 
         def move(self):
+            # Update the snake's position by removing the tail and adding a new head in the current direction
             self.body.popleft()
             self.body.append(self.body[-1] + self.current_orientation)
 
@@ -158,7 +161,8 @@ class Game:
                     elif event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                         snake.current_orientation = Vector2(1, 0)
 
-            # Move snake when timer reaches interval
+
+            # If enough time has passed, move the snake to the next grid position
             if snake_move_timer >= move_interval:
                 snake.move()
                 snake_move_timer -= move_interval  # Subtract the interval to preserve any excess time
