@@ -26,6 +26,7 @@ class Game:
             self.current_orientation = initial_orientation
             self.next_orientations = deque()
             self.body = deque()
+            self.was_moved = False  # Indicates if initial snake move was made
 
             for i in range(initial_size):
                 point = Vector2(x, y) + initial_orientation * i
@@ -95,6 +96,10 @@ class Game:
             self.body.append(self.body[-1] + self.current_orientation)
             if len(self.next_orientations) != 0:
                 self.current_orientation = self.next_orientations.popleft()
+
+        def make_initial_move(self, orientation):
+            self.current_orientation = orientation
+            self.was_moved = True
 
     def __init__(self):
         self.menu_screen_width = 350
@@ -178,12 +183,10 @@ class Game:
         snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), "Red")
 
         snake_move_timer = 0.0  # Time elapsed since the last move
-        move_interval = 0.1  # Move snake every n seconds.
+        move_interval = 0.1 # Move snake every n seconds.
 
         while True:
             dt = self.clock.tick(FPS) / 1000.0  # Elapsed time since last frame in seconds
-
-            snake_move_timer += dt
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -192,17 +195,30 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         return "scene_menu"
                     elif event.key == pygame.K_w or event.key == pygame.K_UP:
+                        if not snake.was_moved:
+                            snake.make_initial_move(Vector2(0, -1))
                         snake.orient(Vector2(0, -1))
                     elif event.key == pygame.K_s or event.key == pygame.K_DOWN:
+                        if not snake.was_moved:
+                            snake.make_initial_move(Vector2(0, 1))
                         snake.orient(Vector2(0, 1))
                     elif event.key == pygame.K_a or event.key == pygame.K_LEFT:
+                        if not snake.was_moved:
+                            snake.make_initial_move(Vector2(-1, 0))
                         snake.orient(Vector2(-1, 0))
                     elif event.key == pygame.K_d or event.key == pygame.K_RIGHT:
+                        if not snake.was_moved:
+                            snake.make_initial_move(Vector2(1, 0))
                         snake.orient(Vector2(1, 0))
+
+            snake_move_timer += dt
+            if not snake.was_moved:
+                snake_move_timer = 0
 
             # If enough time has passed, move the snake to the next grid position
             if snake_move_timer >= move_interval:
-                snake.move()
+                if snake.was_moved:
+                    snake.move()
                 snake_move_timer -= move_interval  # Subtract the interval to preserve any excess time
 
             snake_interpolation_fraction = snake_move_timer / move_interval  # A value between 0 and 1, indicating progress towards the next move
@@ -210,7 +226,11 @@ class Game:
             # Drawing
             self.screen.fill(self.light_grass_color)
             self.draw_grass()
-            snake.draw(snake_interpolation_fraction)
+
+            if snake.was_moved:
+                snake.draw(snake_interpolation_fraction)
+            else:
+                snake.draw(0)
 
             pygame.display.update()
 
