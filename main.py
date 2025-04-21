@@ -1,16 +1,62 @@
 import sys
 
 import pygame
+from pygame import Vector2
 
 
 class Game:
+    class Fruit:
+        def __init__(self, game, fruit_type, x, y):
+            self.game = game
+            self.type = "apple"
+            self.pos = pygame.Vector2(x, y)
+
+        def draw(self):
+            fruit_rect = pygame.Rect(self.pos.x * game.cell_size, self.pos.y * game.cell_size, game.cell_size,
+                                     game.cell_size)
+            pygame.draw.rect(self.game.screen, pygame.Color("Red"), fruit_rect)
+
+    class Snake:
+        def __init__(self, game, x, y, initial_size, initial_orientation, color):
+            self.game = game
+            self.color = color
+            self.body = []
+
+            for i in range(initial_size):
+                if initial_orientation == "right":
+                    point = pygame.Vector2(x + i, y)
+                elif initial_orientation == "left":
+                    point = pygame.Vector2(x - i, y)
+                elif initial_orientation == "up":
+                    point = pygame.Vector2(x, y - i)
+                elif initial_orientation == "down":
+                    point = pygame.Vector2(x, y + i)
+                else:
+                    raise Exception("Invalid orientation")
+
+                self.body.append(point)
+
+        def draw(self):
+            for cell in self.body:
+                body_part_rect = pygame.Rect(cell.x * game.cell_size, cell.y * game.cell_size, game.cell_size,
+                                             game.cell_size)
+
+                pygame.draw.rect(self.game.screen, pygame.Color(self.color), body_part_rect)
+
     def __init__(self):
-        self.screen_width = 350
-        self.screen_height = 500
-        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        self.menu_screen_width = 350
+        self.menu_screen_height = 500
+
+        self.screen = pygame.display.set_mode((self.menu_screen_width, self.menu_screen_height))
+
+        self.cell_size = 25  # the width and length of a cell in the board
+        self.board_dimensions = (14, 20)
+        self.game_screen_width = self.cell_size * self.board_dimensions[0]
+        self.game_screen_height = self.cell_size * self.board_dimensions[1]
 
         self.font_semi_bold = "fonts/PixelifySans-SemiBold.ttf"
-        self.background_color = (64, 197, 91)
+        self.light_grass_color = (165, 207, 82)
+        self.dark_grass_color = (155, 193, 77)
 
         pygame.init()
 
@@ -30,14 +76,25 @@ class Game:
         pygame.quit()
         sys.exit()
 
+    def draw_grass(self):
+        dark_rect = pygame.Rect(1, 2, self.cell_size, self.cell_size)
+        pygame.draw.rect(self.screen, self.dark_grass_color, dark_rect)
+        for col in range(self.board_dimensions[0]):
+            for row in range(self.board_dimensions[1]):
+                if (col + row) % 2 == 0:
+                    dark_rect = pygame.Rect(col * self.cell_size, row * self.cell_size, self.cell_size, self.cell_size)
+                    pygame.draw.rect(self.screen, self.dark_grass_color, dark_rect)
+
     def menu(self):
+        self.screen = pygame.display.set_mode((self.menu_screen_width, self.menu_screen_height))
+
         font = pygame.font.Font(self.font_semi_bold, 35)
 
         menu_title = font.render("Main Menu", False, (0, 0, 0))
         play_btn = font.render("Play", False, (0, 0, 0))
         exit_btn = font.render("Exit", False, (0, 0, 0))
 
-        self.screen.fill(self.background_color)
+        self.screen.fill(self.light_grass_color)
 
         self.screen.blit(menu_title, (10, 5))
         self.screen.blit(play_btn, (10, 80))
@@ -61,12 +118,12 @@ class Game:
                         self.exit_game()
 
     def game(self):
-        font = pygame.font.Font(self.font_semi_bold, 35)
-        menu_txt = font.render("Game running...", False, (0, 0, 0))
+        self.screen = pygame.display.set_mode((self.game_screen_width, self.game_screen_height))
 
-        self.screen.fill(self.background_color)
+        self.screen.fill(self.light_grass_color)
+        self.draw_grass()
 
-        self.screen.blit(menu_txt, (10, 5))
+        self.Snake(game, 3, 4, 2, "up", "Red").draw()
 
         pygame.display.update()
 
