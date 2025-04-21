@@ -24,7 +24,7 @@ class Game:
             self.game = game
             self.color = color
             self.current_orientation = initial_orientation
-            self.next_orientation = initial_orientation
+            self.next_orientations = deque()
             self.body = deque()
 
             for i in range(initial_size):
@@ -54,13 +54,21 @@ class Game:
                 pygame.draw.rect(self.game.screen, pygame.Color(self.color), body_part_rect)
 
         def orient(self, orientation):
-            self.next_orientation = orientation
+            if len(self.next_orientations) == 0:
+                if orientation == self.current_orientation or orientation == -self.current_orientation:
+                    return
+            if len(self.next_orientations) != 0:
+                if orientation == self.next_orientations[-1] or orientation == -self.next_orientations[-1]:
+                    return
+
+            self.next_orientations.append(orientation)
 
         def move(self):
             # Update the snake's position by removing the tail and adding a new head in the current direction
             self.body.popleft()
             self.body.append(self.body[-1] + self.current_orientation)
-            self.current_orientation = self.next_orientation
+            if len(self.next_orientations) != 0:
+                self.current_orientation = self.next_orientations.popleft()
 
     def __init__(self):
         self.menu_screen_width = 350
