@@ -5,6 +5,17 @@ import pygame
 
 class Game:
 
+    class Fruit:
+        def __init__(self, game, fruit_type, x, y):
+            self.game = game
+            self.type = "apple"
+            self.pos = pygame.Vector2(x, y)
+
+        def draw(self):
+            fruit_rect = pygame.Rect(self.pos.x * game.cell_size, self.pos.y * game.cell_size, game.cell_size, game.cell_size)
+            pygame.draw.rect(self.game.screen, pygame.Color("Red"), fruit_rect)
+
+
     def __init__(self):
         self.menu_screen_width = 350
         self.menu_screen_height = 500
