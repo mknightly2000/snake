@@ -55,6 +55,8 @@ class Game:
         self.light_grass_color = (165, 207, 82)
         self.dark_grass_color = (155, 193, 77)
 
+        self.clock = pygame.time.Clock()
+
         pygame.init()
 
     def run(self) -> None:
@@ -132,6 +134,9 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         return "scene_menu"
 
+
+            pygame.display.update()
+            self.clock.tick(60)
 
 if __name__ == "__main__":
     game = Game()
