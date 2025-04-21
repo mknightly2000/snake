@@ -23,17 +23,7 @@ class Game:
             self.body = []
 
             for i in range(initial_size):
-                if initial_orientation == "right":
-                    point = pygame.Vector2(x + i, y)
-                elif initial_orientation == "left":
-                    point = pygame.Vector2(x - i, y)
-                elif initial_orientation == "up":
-                    point = pygame.Vector2(x, y - i)
-                elif initial_orientation == "down":
-                    point = pygame.Vector2(x, y + i)
-                else:
-                    raise Exception("Invalid orientation")
-
+                point = Vector2(x, y) + initial_orientation * i
                 self.body.append(point)
 
         def draw(self):
@@ -123,7 +113,7 @@ class Game:
         self.screen.fill(self.light_grass_color)
         self.draw_grass()
 
-        self.Snake(game, 3, 4, 2, "up", "Red").draw()
+        self.Snake(game, 3, 4, 4, Vector2(1, 0), "Red").draw()
 
         pygame.display.update()
 
