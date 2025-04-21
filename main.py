@@ -20,7 +20,8 @@ class Game:
         def __init__(self, game, x, y, initial_size, initial_orientation, color):
             self.game = game
             self.color = color
-            self.body = []
+            self.current_orientation = initial_orientation
+            self.body = deque()
 
             for i in range(initial_size):
                 point = Vector2(x, y) + initial_orientation * i
@@ -32,6 +33,11 @@ class Game:
                                              game.cell_size)
 
                 pygame.draw.rect(self.game.screen, pygame.Color(self.color), body_part_rect)
+
+        def move(self):
+            self.body.popleft()
+            self.body.append(self.body[-1] + self.current_orientation)
+
 
     def __init__(self):
         self.menu_screen_width = 350
