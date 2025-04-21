@@ -119,12 +119,7 @@ class Game:
     def game(self):
         self.screen = pygame.display.set_mode((self.game_screen_width, self.game_screen_height))
 
-        self.screen.fill(self.light_grass_color)
-        self.draw_grass()
-
-        self.Snake(game, 3, 4, 4, Vector2(1, 0), "Red").draw()
-
-        pygame.display.update()
+        snake = self.Snake(game, 3, 4, 4, Vector2(1, 0), "Red")
 
         while True:
             for event in pygame.event.get():
@@ -134,6 +129,8 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         return "scene_menu"
 
+            self.screen.fill(self.light_grass_color)
+            self.draw_grass()
 
             pygame.display.update()
             self.clock.tick(60)
