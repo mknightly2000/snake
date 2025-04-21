@@ -122,6 +122,9 @@ class Game:
 
         snake = self.Snake(game, 3, 4, 4, Vector2(1, 0), "Red")
 
+        move_snake_event = pygame.USEREVENT
+        pygame.time.set_timer(move_snake_event, 100)
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -129,9 +132,21 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         return "scene_menu"
+                    elif event.key == pygame.K_w or event.key == pygame.K_UP:
+                        snake.current_orientation = Vector2(0, -1)
+                    elif event.key == pygame.K_s or event.key == pygame.K_DOWN:
+                        snake.current_orientation = Vector2(0, 1)
+                    elif event.key == pygame.K_a or event.key == pygame.K_LEFT:
+                        snake.current_orientation = Vector2(-1, 0)
+                    elif event.key == pygame.K_d or event.key == pygame.K_RIGHT:
+                        snake.current_orientation = Vector2(1, 0)
+                elif event.type == move_snake_event:
+                    snake.move()
+
 
             self.screen.fill(self.light_grass_color)
             self.draw_grass()
+            snake.draw()
 
             pygame.display.update()
             self.clock.tick(FPS)
