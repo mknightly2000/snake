@@ -4,6 +4,7 @@ import pygame
 from pygame import Vector2
 from collections import deque
 
+FPS = 60
 
 class Game:
     class Fruit:
@@ -133,7 +134,7 @@ class Game:
             self.draw_grass()
 
             pygame.display.update()
-            self.clock.tick(60)
+            self.clock.tick(FPS)
 
 if __name__ == "__main__":
     game = Game()
