@@ -1,17 +1,18 @@
 import sys
+from collections import deque
 
 import pygame
 from pygame import Vector2
-from collections import deque
 
 FPS = 60
+
 
 class Game:
     class Fruit:
         def __init__(self, game, fruit_type, x, y):
             self.game = game
             self.type = "apple"
-            self.pos = pygame.Vector2(x, y)
+            self.pos = Vector2(x, y)
 
         def draw(self):
             fruit_rect = pygame.Rect(self.pos.x * game.cell_size, self.pos.y * game.cell_size, game.cell_size,
@@ -29,17 +30,29 @@ class Game:
                 point = Vector2(x, y) + initial_orientation * i
                 self.body.append(point)
 
-        def draw(self):
-            for cell in self.body:
-                body_part_rect = pygame.Rect(cell.x * game.cell_size, cell.y * game.cell_size, game.cell_size,
-                                             game.cell_size)
+        def draw(self, interpolation_fraction):
+            for i, cell in enumerate(self.body):
+
+                if i == len(self.body) - 1:
+                    cell_orientation = self.current_orientation
+                else:
+                    cell_orientation = self.body[i + 1] - cell
+
+                # Move every cell a bit towards the next cell
+                render_pos = cell + interpolation_fraction * cell_orientation
+
+                body_part_rect = pygame.Rect(
+                    render_pos.x * self.game.cell_size,
+                    render_pos.y * self.game.cell_size,
+                    self.game.cell_size,
+                    self.game.cell_size
+                )
 
                 pygame.draw.rect(self.game.screen, pygame.Color(self.color), body_part_rect)
 
         def move(self):
             self.body.popleft()
             self.body.append(self.body[-1] + self.current_orientation)
-
 
     def __init__(self):
         self.menu_screen_width = 350
@@ -120,12 +133,16 @@ class Game:
     def game(self):
         self.screen = pygame.display.set_mode((self.game_screen_width, self.game_screen_height))
 
-        snake = self.Snake(game, 3, 4, 4, Vector2(1, 0), "Red")
+        snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), "Red")
 
-        move_snake_event = pygame.USEREVENT
-        pygame.time.set_timer(move_snake_event, 100)
+        snake_move_timer = 0.0  # Time elapsed since the last move
+        move_interval = 1  # Move snake every n seconds.
 
         while True:
+            dt = self.clock.tick(FPS) / 1000.0  # Elapsed time since last frame in seconds
+
+            snake_move_timer += dt
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.exit_game()
@@ -140,16 +157,20 @@ class Game:
                         snake.current_orientation = Vector2(-1, 0)
                     elif event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                         snake.current_orientation = Vector2(1, 0)
-                elif event.type == move_snake_event:
-                    snake.move()
 
+            # Move snake when timer reaches interval
+            if snake_move_timer >= move_interval:
+                snake.move()
+                snake_move_timer -= move_interval  # Subtract the interval to preserve any excess time
+
+            snake_interpolation_fraction = snake_move_timer / move_interval  # A value between 0 and 1, indicating progress towards the next move
 
             self.screen.fill(self.light_grass_color)
             self.draw_grass()
-            snake.draw()
+            snake.draw(snake_interpolation_fraction)
 
             pygame.display.update()
-            self.clock.tick(FPS)
+
 
 if __name__ == "__main__":
     game = Game()
