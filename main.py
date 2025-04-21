@@ -36,7 +36,23 @@ class Game:
                 # Determine the orientation for each segment:
                 # - For the head, use the current movement direction
                 # - For other segments, use the direction to the next segment
+
+                cell_type = None  # "head", "body", "corner", or "tail"
+
                 if i == len(self.body) - 1:
+                    cell_type = "head"
+                elif i == 0:
+                    cell_type = "tail"
+                else:
+                    prev_cell = self.body[i - 1]
+                    next_cell = self.body[i + 1]
+                    if prev_cell.x != next_cell.x and prev_cell.y != next_cell.y:
+                        cell_type = "corner"
+                    else:
+                        cell_type = "body"
+
+
+                if cell_type == "head":
                     cell_orientation = self.current_orientation
                 else:
                     cell_orientation = self.body[i + 1] - cell
@@ -52,6 +68,16 @@ class Game:
                 )
 
                 pygame.draw.rect(self.game.screen, pygame.Color(self.color), body_part_rect)
+
+                # Fill in corners with snake color
+                if cell_type == "corner" or cell_type == "head":
+                    corner_rect = pygame.Rect(
+                        cell.x * self.game.cell_size,
+                        cell.y * self.game.cell_size,
+                        self.game.cell_size,
+                        self.game.cell_size
+                    )
+                    pygame.draw.rect(self.game.screen, pygame.Color(self.color), corner_rect)
 
         def orient(self, orientation):
             if len(self.next_orientations) == 0:
