@@ -52,7 +52,6 @@ class Game:
                     else:
                         cell_type = "body"
 
-
                 if cell_type == "head":
                     cell_orientation = self.current_orientation
                 else:
@@ -234,6 +233,37 @@ class Game:
 
             pygame.display.update()
 
+    def game_over(self):
+        self.screen = pygame.display.set_mode((self.menu_screen_width, self.menu_screen_height))
+
+        font = pygame.font.Font(self.font_semi_bold, 35)
+
+        menu_title = font.render("Game Over", False, (0, 0, 0))
+        restart_btn = font.render("Restart", False, (0, 0, 0))
+        back_btn = font.render("Main Menu", False, (0, 0, 0))
+
+        self.screen.fill(self.light_grass_color)
+
+        self.screen.blit(menu_title, (10, 5))
+        self.screen.blit(restart_btn, (10, 80))
+        restart_btn_rect = restart_btn.get_rect(topleft=(10, 80))
+        self.screen.blit(back_btn, (10, 120))
+        back_btn_rect = back_btn.get_rect(topleft=(10, 120))
+
+        pygame.display.update()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.exit_game()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        return "scene_game"
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if restart_btn_rect.collidepoint(event.pos):
+                        return "scene_game"
+                    elif back_btn_rect.collidepoint(event.pos):
+                        return "scene_menu"
 
 if __name__ == "__main__":
     game = Game()
