@@ -90,11 +90,19 @@ class Game:
             self.next_orientations.append(orientation)
 
         def move(self):
+            # Collision Detection
+            new_head = self.body[-1] + self.current_orientation
+            if not (0 <= new_head.x < self.game.board_dimensions[0] and 0 <= new_head.y < self.game.board_dimensions[
+                1]):
+                return False
+
             # Update the snake's position by removing the tail and adding a new head in the current direction
             self.body.popleft()
             self.body.append(self.body[-1] + self.current_orientation)
             if len(self.next_orientations) != 0:
                 self.current_orientation = self.next_orientations.popleft()
+
+            return True
 
         def make_initial_move(self, orientation):
             self.current_orientation = orientation
@@ -129,6 +137,8 @@ class Game:
                 scene = self.menu()
             elif scene == "scene_game":
                 scene = self.game()
+            elif scene == "scene_game_over":
+                scene = self.game_over()
 
     def exit_game(self) -> None:
         print("Exiting...")
@@ -182,7 +192,7 @@ class Game:
         snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), "Red")
 
         snake_move_timer = 0.0  # Time elapsed since the last move
-        move_interval = 0.1 # Move snake every n seconds.
+        move_interval = 0.1  # Move snake every n seconds.
 
         while True:
             dt = self.clock.tick(FPS) / 1000.0  # Elapsed time since last frame in seconds
@@ -217,7 +227,9 @@ class Game:
             # If enough time has passed, move the snake to the next grid position
             if snake_move_timer >= move_interval:
                 if snake.was_moved:
-                    snake.move()
+                    if not snake.move():
+                        print("Game over by collision with map border.")
+                        return "scene_game_over"
                 snake_move_timer -= move_interval  # Subtract the interval to preserve any excess time
 
             snake_interpolation_fraction = snake_move_timer / move_interval  # A value between 0 and 1, indicating progress towards the next move
