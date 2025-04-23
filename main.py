@@ -90,19 +90,24 @@ class Game:
             self.next_orientations.append(orientation)
 
         def move(self):
-            # Collision Detection
             new_head = self.body[-1] + self.current_orientation
+
+            # Check for collisions with border
             if not (0 <= new_head.x < self.game.board_dimensions[0] and 0 <= new_head.y < self.game.board_dimensions[
                 1]):
-                return False
+                return False, "border"
+
+            # Check for self-collision with body (excluding the tail)
+            if new_head in list(self.body)[1:]:
+                return False, "self"
 
             # Update the snake's position by removing the tail and adding a new head in the current direction
             self.body.popleft()
-            self.body.append(self.body[-1] + self.current_orientation)
+            self.body.append(new_head)
             if len(self.next_orientations) != 0:
                 self.current_orientation = self.next_orientations.popleft()
 
-            return True
+            return True, None
 
         def make_initial_move(self, orientation):
             self.current_orientation = orientation
@@ -189,7 +194,7 @@ class Game:
     def game(self):
         self.screen = pygame.display.set_mode((self.game_screen_width, self.game_screen_height))
 
-        snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), "Red")
+        snake = self.Snake(self, 3, 4, 10, Vector2(1, 0), "Red")
 
         snake_move_timer = 0.0  # Time elapsed since the last move
         move_interval = 0.1  # Move snake every n seconds.
@@ -227,8 +232,13 @@ class Game:
             # If enough time has passed, move the snake to the next grid position
             if snake_move_timer >= move_interval:
                 if snake.was_moved:
-                    if not snake.move():
-                        print("Game over by collision with map border.")
+                    is_sucess, reason = snake.move()
+                    if not is_sucess:
+                        if reason == "border":
+                            print("Game over by collision with map border.")
+                        elif reason == "self":
+                            print("Game over by collision with self.")
+
                         return "scene_game_over"
                 snake_move_timer -= move_interval  # Subtract the interval to preserve any excess time
 
