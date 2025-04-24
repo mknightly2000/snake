@@ -28,7 +28,7 @@ class Game:
         def draw(self):
             fruit_rect = pygame.Rect(self.pos.x * game.cell_size, self.pos.y * game.cell_size, game.cell_size,
                                      game.cell_size)
-            pygame.draw.rect(self.game.screen, pygame.Color("Red"), fruit_rect)
+            pygame.draw.rect(self.game.screen, pygame.Color(184, 130, 238), fruit_rect)
 
     class Snake:
         def __init__(self, game, x, y, initial_size, initial_orientation, color):
@@ -309,12 +309,14 @@ class Game:
             self.screen.fill(self.light_grass_color)
             self.draw_grass()
 
+            fruit.draw()
+
             if snake.was_moved:
                 snake.draw(snake_interpolation_fraction)
             else:
                 snake.draw(0)
 
-            fruit.draw()
+
 
             self.draw_status_bar()
 
