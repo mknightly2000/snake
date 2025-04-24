@@ -242,8 +242,8 @@ class Game:
             # If enough time has passed, move the snake to the next grid position
             if snake_move_timer >= move_interval:
                 if snake.was_moved:
-                    is_sucess, reason = snake.move()
-                    if not is_sucess:
+                    is_snake_move_successful, reason = snake.move()
+                    if not is_snake_move_successful:
                         if reason == "border":
                             print("Game over by collision with map border.")
                         elif reason == "self":
