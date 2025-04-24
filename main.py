@@ -250,6 +250,8 @@ class Game:
                             print("Game over by collision with self.")
 
                         return "scene_game_over"
+                    elif snake.body[-1] == fruit.pos:
+                        fruit = self.spawn_fruit(snake)
                 snake_move_timer -= move_interval  # Subtract the interval to preserve any excess time
 
             snake_interpolation_fraction = snake_move_timer / move_interval  # A value between 0 and 1, indicating progress towards the next move
