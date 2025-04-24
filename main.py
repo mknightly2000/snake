@@ -186,8 +186,6 @@ class Game:
                     pygame.draw.rect(self.screen, self.dark_grass_color, dark_rect)
 
     def menu(self):
-        self.screen = pygame.display.set_mode((self.menu_screen_width, self.menu_screen_height))
-
         font = pygame.font.Font(self.font_semi_bold, 35)
 
         menu_title = font.render("Main Menu", False, (0, 0, 0))
@@ -218,8 +216,6 @@ class Game:
                         self.exit_game()
 
     def game(self):
-        self.screen = pygame.display.set_mode((self.game_screen_width, self.game_screen_height))
-
         snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), "Red")
         fruit = self.spawn_fruit(snake)
 
@@ -283,8 +279,6 @@ class Game:
             pygame.display.update()
 
     def game_over(self):
-        self.screen = pygame.display.set_mode((self.menu_screen_width, self.menu_screen_height))
-
         font = pygame.font.Font(self.font_semi_bold, 35)
 
         menu_title = font.render("Game Over", False, (0, 0, 0))
