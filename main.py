@@ -141,7 +141,7 @@ class Game:
         self.viewport_width = self.board_width
         self.viewport_height = self.board_height + self.status_bar_height
 
-        self.cell_size = 18  # the width and length of a cell in the board
+        self.cell_size = 24  # the width and length of a cell in the board
 
         # Suggested cell sizes: 12, 18, 24, and 36
         # LCM(12, 18, 24) = 72
@@ -154,6 +154,8 @@ class Game:
         self.font_semi_bold = "fonts/PixelifySans-SemiBold.ttf"
         self.light_grass_color = (165, 207, 82)
         self.dark_grass_color = (155, 193, 77)
+
+        self.score = 0
 
         self.screen = pygame.display.set_mode((self.viewport_width, self.viewport_height))
         self.clock = pygame.time.Clock()
@@ -194,8 +196,14 @@ class Game:
                     pygame.draw.rect(self.screen, self.dark_grass_color, dark_rect)
 
     def draw_status_bar(self):
-        dark_rect = pygame.Rect(0, self.board_height, self.viewport_width, self.status_bar_height)
-        pygame.draw.rect(self.screen, pygame.Color(74, 117, 44), dark_rect)
+        status_bar_rect = pygame.Rect(0, self.board_height, self.viewport_width, self.status_bar_height)
+        pygame.draw.rect(self.screen, pygame.Color(74, 117, 44), status_bar_rect)
+
+        font = pygame.font.Font(self.font_semi_bold, 35)
+        score_txt = font.render(str(self.score), False, (255, 255, 255))
+        x, y = center(score_txt.get_rect(), status_bar_rect)
+
+        self.screen.blit(score_txt, (x, y))
 
     def menu(self):
         font = pygame.font.Font(self.font_semi_bold, 35)
@@ -230,6 +238,8 @@ class Game:
     def game(self):
         snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), "Red")
         fruit = self.spawn_fruit(snake)
+
+        self.score = 0  # reset score
 
         snake_move_timer = 0.0  # Time elapsed since the last move
         move_interval = 0.1  # Move snake every n seconds.
@@ -272,6 +282,7 @@ class Game:
                     elif snake.body[-1] == fruit.pos:
                         fruit = self.spawn_fruit(snake)
                         snake.grow()
+                        self.score += 1
 
                 snake_move_timer -= move_interval  # Subtract the interval to preserve any excess time
 
