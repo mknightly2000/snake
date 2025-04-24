@@ -81,6 +81,12 @@ class Game:
                     pygame.draw.rect(self.game.screen, pygame.Color(self.color), corner_rect)
 
         def orient(self, orientation):
+            # Make initial move
+            if not self.was_moved:
+                self.current_orientation = orientation
+                self.was_moved = True
+
+            # When initial move is completed
             if len(self.next_orientations) == 0:
                 if orientation == self.current_orientation or orientation == -self.current_orientation:
                     return
@@ -222,20 +228,12 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         return "scene_menu"
                     elif event.key == pygame.K_w or event.key == pygame.K_UP:
-                        if not snake.was_moved:
-                            snake.make_initial_move(Vector2(0, -1))
                         snake.orient(Vector2(0, -1))
                     elif event.key == pygame.K_s or event.key == pygame.K_DOWN:
-                        if not snake.was_moved:
-                            snake.make_initial_move(Vector2(0, 1))
                         snake.orient(Vector2(0, 1))
                     elif event.key == pygame.K_a or event.key == pygame.K_LEFT:
-                        if not snake.was_moved:
-                            snake.make_initial_move(Vector2(-1, 0))
                         snake.orient(Vector2(-1, 0))
                     elif event.key == pygame.K_d or event.key == pygame.K_RIGHT:
-                        if not snake.was_moved:
-                            snake.make_initial_move(Vector2(1, 0))
                         snake.orient(Vector2(1, 0))
 
             snake_move_timer += dt
