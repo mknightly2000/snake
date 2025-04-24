@@ -1,3 +1,4 @@
+import random
 import sys
 from collections import deque
 
@@ -150,6 +151,14 @@ class Game:
         pygame.quit()
         sys.exit()
 
+    def spawn_fruit(self, snake):
+        while True:
+            x = random.randint(0, self.board_dimensions[0] - 1)
+            y = random.randint(0, self.board_dimensions[1] - 1)
+            pos = Vector2(x, y)
+            if pos not in snake.body:
+                return self.Fruit(self, "apple", x, y)
+
     def draw_grass(self):
         dark_rect = pygame.Rect(1, 2, self.cell_size, self.cell_size)
         pygame.draw.rect(self.screen, self.dark_grass_color, dark_rect)
@@ -195,6 +204,7 @@ class Game:
         self.screen = pygame.display.set_mode((self.game_screen_width, self.game_screen_height))
 
         snake = self.Snake(self, 3, 4, 10, Vector2(1, 0), "Red")
+        fruit = self.spawn_fruit(snake)
 
         snake_move_timer = 0.0  # Time elapsed since the last move
         move_interval = 0.1  # Move snake every n seconds.
@@ -253,6 +263,8 @@ class Game:
             else:
                 snake.draw(0)
 
+            fruit.draw()
+
             pygame.display.update()
 
     def game_over(self):
@@ -286,6 +298,7 @@ class Game:
                         return "scene_game"
                     elif back_btn_rect.collidepoint(event.pos):
                         return "scene_menu"
+
 
 if __name__ == "__main__":
     game = Game()
