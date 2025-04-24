@@ -174,6 +174,8 @@ class Game:
         while True:
             if scene == "scene_menu":
                 scene = self.main_menu()
+            elif scene == "scene_options_menu":
+                scene = self.options_menu()
             elif scene == "scene_game":
                 scene = self.game()
             elif scene == "scene_game_over":
@@ -249,8 +251,39 @@ class Game:
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if play_btn_rect.collidepoint(event.pos):
                         return "scene_game"
+                    elif options_btn_rect.collidepoint(event.pos):
+                        return "scene_options_menu"
                     elif exit_btn_rect.collidepoint(event.pos):
                         self.exit_game()
+
+    def options_menu(self):
+        title_font = pygame.font.Font(self.font_semi_bold, 35)
+        font = pygame.font.Font(self.font_bold, 25)
+
+        menu_title = title_font.render("Options", False, (0, 0, 0))
+        back_btn = font.render("< Back", False, (0, 0, 0))
+
+        menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
+        back_btn_x, back_btn_y = center(back_btn.get_rect(), self.screen.get_rect())
+
+        self.screen.fill(self.light_grass_color)
+
+        self.screen.blit(menu_title, (menu_title_x, 20))
+        self.screen.blit(back_btn, (back_btn_x, back_btn_y))
+        back_btn_rect = back_btn.get_rect(topleft=(back_btn_x, back_btn_y))
+
+        pygame.display.update()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.exit_game()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        return "scene_game"
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if back_btn_rect.collidepoint(event.pos):
+                        return "scene_menu"
 
     def game(self):
         snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), "Red")
