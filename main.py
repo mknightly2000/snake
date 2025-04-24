@@ -124,10 +124,10 @@ class Game:
             self.body.appendleft(self.body[0].copy())
 
     def __init__(self):
-        self.menu_screen_width = 288
-        self.menu_screen_height = 504
+        self.viewport_width = 288
+        self.viewport_height = 504
 
-        self.screen = pygame.display.set_mode((self.menu_screen_width, self.menu_screen_height))
+        self.screen = pygame.display.set_mode((self.viewport_width, self.viewport_height))
 
         self.cell_size = 18 # the width and length of a cell in the board
 
@@ -135,8 +135,8 @@ class Game:
         # LCM(12, 18, 24) = 72
         # Playground dimensions should be multiples of 72.
 
-        board_width = self.menu_screen_width // self.cell_size
-        board_height = self.menu_screen_height // self.cell_size
+        board_width = self.viewport_width // self.cell_size
+        board_height = self.viewport_height // self.cell_size
         self.board_dimensions = (board_width, board_height)
 
         self.game_screen_width = self.cell_size * self.board_dimensions[0]
