@@ -151,7 +151,11 @@ class Game:
         board_num_cells_y_direction = self.board_height // self.cell_size
         self.board_dimensions = (board_num_cells_x_direction, board_num_cells_y_direction)
 
+        self.font_regular = "fonts/PixelifySans-Regular.ttf"
+        self.font_medium = "fonts/PixelifySans-Medium.ttf"
         self.font_semi_bold = "fonts/PixelifySans-SemiBold.ttf"
+        self.font_bold = "fonts/PixelifySans-Bold.ttf"
+
         self.light_grass_color = (165, 207, 82)
         self.dark_grass_color = (155, 193, 77)
 
@@ -199,26 +203,39 @@ class Game:
         status_bar_rect = pygame.Rect(0, self.board_height, self.viewport_width, self.status_bar_height)
         pygame.draw.rect(self.screen, pygame.Color(74, 117, 44), status_bar_rect)
 
-        font = pygame.font.Font(self.font_semi_bold, 35)
+        font = pygame.font.Font(self.font_bold, 35)
         score_txt = font.render(str(self.score), False, (255, 255, 255))
         x, y = center(score_txt.get_rect(), status_bar_rect)
 
         self.screen.blit(score_txt, (x, y))
 
     def menu(self):
-        font = pygame.font.Font(self.font_semi_bold, 35)
+        title_font = pygame.font.Font(self.font_semi_bold, 35)
+        font = pygame.font.Font(self.font_bold, 25)
 
-        menu_title = font.render("Main Menu", False, (0, 0, 0))
+        menu_title = title_font.render("Main Menu", False, (0, 0, 0))
         play_btn = font.render("Play", False, (0, 0, 0))
+        options_btn = font.render("Options", False, (0, 0, 0))
         exit_btn = font.render("Exit", False, (0, 0, 0))
+
+        menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
+        play_btn_x, play_btn_y = center(play_btn.get_rect(), self.screen.get_rect())
+        play_btn_y -= 50
+        options_btn_x, options_btn_y = center(options_btn.get_rect(), self.screen.get_rect())
+        exit_btn_x, exit_btn_y= center(exit_btn.get_rect(), self.screen.get_rect())
+        exit_btn_y += 50
 
         self.screen.fill(self.light_grass_color)
 
-        self.screen.blit(menu_title, (10, 5))
-        self.screen.blit(play_btn, (10, 80))
-        play_btn_rect = play_btn.get_rect(topleft=(10, 80))
-        self.screen.blit(exit_btn, (10, 120))
-        exit_btn_rect = exit_btn.get_rect(topleft=(10, 120))
+        self.screen.blit(menu_title, (menu_title_x, 20))
+        self.screen.blit(play_btn, (play_btn_x, play_btn_y))
+        self.screen.blit(options_btn, (options_btn_x, options_btn_y))
+        self.screen.blit(exit_btn, (exit_btn_x, exit_btn_y))
+
+        play_btn_rect = play_btn.get_rect(topleft=(play_btn_x, play_btn_y))
+        options_btn_rect = options_btn.get_rect(topleft=(options_btn_x, options_btn_y))
+        exit_btn_rect = exit_btn.get_rect(topleft=(exit_btn_x, exit_btn_y))
+
 
         pygame.display.update()
 
@@ -304,19 +321,27 @@ class Game:
             pygame.display.update()
 
     def game_over(self):
-        font = pygame.font.Font(self.font_semi_bold, 35)
+        title_font = pygame.font.Font(self.font_semi_bold, 35)
+        font = pygame.font.Font(self.font_bold, 25)
 
-        menu_title = font.render("Game Over", False, (0, 0, 0))
+        menu_title = title_font.render("Game Over", False, (0, 0, 0))
         restart_btn = font.render("Restart", False, (0, 0, 0))
         back_btn = font.render("Main Menu", False, (0, 0, 0))
 
+        menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
+        restart_btn_x, restart_btn_y = center(restart_btn.get_rect(), self.screen.get_rect())
+        restart_btn_y -= 25
+        back_btn_x, back_btn_y = center(back_btn.get_rect(), self.screen.get_rect())
+        back_btn_y += 25
+
         self.screen.fill(self.light_grass_color)
 
-        self.screen.blit(menu_title, (10, 5))
-        self.screen.blit(restart_btn, (10, 80))
-        restart_btn_rect = restart_btn.get_rect(topleft=(10, 80))
-        self.screen.blit(back_btn, (10, 120))
-        back_btn_rect = back_btn.get_rect(topleft=(10, 120))
+        self.screen.blit(menu_title, (menu_title_x, 20))
+        self.screen.blit(restart_btn, (restart_btn_x, restart_btn_y))
+        self.screen.blit(back_btn, (back_btn_x, back_btn_y))
+
+        restart_btn_rect = restart_btn.get_rect(topleft=(restart_btn_x, restart_btn_y))
+        back_btn_rect = back_btn.get_rect(topleft=(back_btn_x, back_btn_y))
 
         pygame.display.update()
 
