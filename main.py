@@ -124,28 +124,28 @@ class Game:
             self.body.appendleft(self.body[0].copy())
 
     def __init__(self):
-        self.viewport_width = 288
-        self.viewport_height = 504
+        self.board_width = 288
+        self.board_height = 432
+        self.status_bar_height = 54
 
-        self.screen = pygame.display.set_mode((self.viewport_width, self.viewport_height))
+        self.viewport_width = self.board_width
+        self.viewport_height = self.board_height + self.status_bar_height
 
-        self.cell_size = 18 # the width and length of a cell in the board
+        self.cell_size = 18  # the width and length of a cell in the board
 
         # Suggested cell sizes: 12, 18, 24, and 36
         # LCM(12, 18, 24) = 72
         # Playground dimensions should be multiples of 72.
 
-        board_width = self.viewport_width // self.cell_size
-        board_height = self.viewport_height // self.cell_size
-        self.board_dimensions = (board_width, board_height)
-
-        self.game_screen_width = self.cell_size * self.board_dimensions[0]
-        self.game_screen_height = self.cell_size * self.board_dimensions[1]
+        board_num_cells_x_direction = self.board_width // self.cell_size
+        board_num_cells_y_direction = self.board_height // self.cell_size
+        self.board_dimensions = (board_num_cells_x_direction, board_num_cells_y_direction)
 
         self.font_semi_bold = "fonts/PixelifySans-SemiBold.ttf"
         self.light_grass_color = (165, 207, 82)
         self.dark_grass_color = (155, 193, 77)
 
+        self.screen = pygame.display.set_mode((self.viewport_width, self.viewport_height))
         self.clock = pygame.time.Clock()
 
         pygame.init()
@@ -177,13 +177,15 @@ class Game:
                 return self.Fruit(self, "apple", x, y)
 
     def draw_grass(self):
-        dark_rect = pygame.Rect(1, 2, self.cell_size, self.cell_size)
-        pygame.draw.rect(self.screen, self.dark_grass_color, dark_rect)
         for col in range(self.board_dimensions[0]):
             for row in range(self.board_dimensions[1]):
                 if (col + row) % 2 == 0:
                     dark_rect = pygame.Rect(col * self.cell_size, row * self.cell_size, self.cell_size, self.cell_size)
                     pygame.draw.rect(self.screen, self.dark_grass_color, dark_rect)
+
+    def draw_status_bar(self):
+        dark_rect = pygame.Rect(0, self.board_height, self.viewport_width, self.status_bar_height)
+        pygame.draw.rect(self.screen, pygame.Color(74, 117, 44), dark_rect)
 
     def menu(self):
         font = pygame.font.Font(self.font_semi_bold, 35)
@@ -275,6 +277,8 @@ class Game:
                 snake.draw(0)
 
             fruit.draw()
+
+            self.draw_status_bar()
 
             pygame.display.update()
 
