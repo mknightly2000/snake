@@ -8,6 +8,16 @@ from pygame import Vector2
 FPS = 60
 
 
+def center(obj, parent_obj):
+    parent_obj_center_x = parent_obj.width / 2
+    parent_obj_center_y = parent_obj.height / 2
+
+    x = parent_obj.x + (parent_obj_center_x - obj.width / 2)
+    y = parent_obj.y + (parent_obj_center_y - obj.height / 2)
+
+    return x, y
+
+
 class Game:
     class Fruit:
         def __init__(self, game, fruit_type, x, y):
@@ -18,7 +28,7 @@ class Game:
         def draw(self):
             fruit_rect = pygame.Rect(self.pos.x * game.cell_size, self.pos.y * game.cell_size, game.cell_size,
                                      game.cell_size)
-            pygame.draw.rect(self.game.screen, pygame.Color("Red"), fruit_rect)
+            pygame.draw.rect(self.game.screen, pygame.Color(184, 130, 238), fruit_rect)
 
     class Snake:
         def __init__(self, game, x, y, initial_size, initial_orientation, color):
@@ -81,6 +91,12 @@ class Game:
                     pygame.draw.rect(self.game.screen, pygame.Color(self.color), corner_rect)
 
         def orient(self, orientation):
+            # Make initial move
+            if not self.was_moved:
+                self.current_orientation = orientation
+                self.was_moved = True
+
+            # When initial move is completed
             if len(self.next_orientations) == 0:
                 if orientation == self.current_orientation or orientation == -self.current_orientation:
                     return
@@ -118,20 +134,34 @@ class Game:
             self.body.appendleft(self.body[0].copy())
 
     def __init__(self):
-        self.menu_screen_width = 350
-        self.menu_screen_height = 500
+        self.board_width = 288
+        self.board_height = 432
+        self.status_bar_height = 54
 
-        self.screen = pygame.display.set_mode((self.menu_screen_width, self.menu_screen_height))
+        self.viewport_width = self.board_width
+        self.viewport_height = self.board_height + self.status_bar_height
 
-        self.cell_size = 25  # the width and length of a cell in the board
-        self.board_dimensions = (14, 20)
-        self.game_screen_width = self.cell_size * self.board_dimensions[0]
-        self.game_screen_height = self.cell_size * self.board_dimensions[1]
+        self.cell_size = 24  # the width and length of a cell in the board
 
+        # Suggested cell sizes: 12, 18, 24, and 36
+        # LCM(12, 18, 24) = 72
+        # Playground dimensions should be multiples of 72.
+
+        board_num_cells_x_direction = self.board_width // self.cell_size
+        board_num_cells_y_direction = self.board_height // self.cell_size
+        self.board_dimensions = (board_num_cells_x_direction, board_num_cells_y_direction)
+
+        self.font_regular = "fonts/PixelifySans-Regular.ttf"
+        self.font_medium = "fonts/PixelifySans-Medium.ttf"
         self.font_semi_bold = "fonts/PixelifySans-SemiBold.ttf"
+        self.font_bold = "fonts/PixelifySans-Bold.ttf"
+
         self.light_grass_color = (165, 207, 82)
         self.dark_grass_color = (155, 193, 77)
 
+        self.score = 0
+
+        self.screen = pygame.display.set_mode((self.viewport_width, self.viewport_height))
         self.clock = pygame.time.Clock()
 
         pygame.init()
@@ -143,7 +173,9 @@ class Game:
 
         while True:
             if scene == "scene_menu":
-                scene = self.menu()
+                scene = self.main_menu()
+            elif scene == "scene_options_menu":
+                scene = self.options_menu()
             elif scene == "scene_game":
                 scene = self.game()
             elif scene == "scene_game_over":
@@ -163,30 +195,49 @@ class Game:
                 return self.Fruit(self, "apple", x, y)
 
     def draw_grass(self):
-        dark_rect = pygame.Rect(1, 2, self.cell_size, self.cell_size)
-        pygame.draw.rect(self.screen, self.dark_grass_color, dark_rect)
         for col in range(self.board_dimensions[0]):
             for row in range(self.board_dimensions[1]):
                 if (col + row) % 2 == 0:
                     dark_rect = pygame.Rect(col * self.cell_size, row * self.cell_size, self.cell_size, self.cell_size)
                     pygame.draw.rect(self.screen, self.dark_grass_color, dark_rect)
 
-    def menu(self):
-        self.screen = pygame.display.set_mode((self.menu_screen_width, self.menu_screen_height))
+    def draw_status_bar(self):
+        status_bar_rect = pygame.Rect(0, self.board_height, self.viewport_width, self.status_bar_height)
+        pygame.draw.rect(self.screen, pygame.Color(74, 117, 44), status_bar_rect)
 
-        font = pygame.font.Font(self.font_semi_bold, 35)
+        font = pygame.font.Font(self.font_bold, 35)
+        score_txt = font.render(str(self.score), False, (255, 255, 255))
+        x, y = center(score_txt.get_rect(), status_bar_rect)
 
-        menu_title = font.render("Main Menu", False, (0, 0, 0))
+        self.screen.blit(score_txt, (x, y))
+
+    def main_menu(self):
+        title_font = pygame.font.Font(self.font_semi_bold, 35)
+        font = pygame.font.Font(self.font_bold, 25)
+
+        menu_title = title_font.render("Main Menu", False, (0, 0, 0))
         play_btn = font.render("Play", False, (0, 0, 0))
+        options_btn = font.render("Options", False, (0, 0, 0))
         exit_btn = font.render("Exit", False, (0, 0, 0))
+
+        menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
+        play_btn_x, play_btn_y = center(play_btn.get_rect(), self.screen.get_rect())
+        play_btn_y -= 50
+        options_btn_x, options_btn_y = center(options_btn.get_rect(), self.screen.get_rect())
+        exit_btn_x, exit_btn_y= center(exit_btn.get_rect(), self.screen.get_rect())
+        exit_btn_y += 50
 
         self.screen.fill(self.light_grass_color)
 
-        self.screen.blit(menu_title, (10, 5))
-        self.screen.blit(play_btn, (10, 80))
-        play_btn_rect = play_btn.get_rect(topleft=(10, 80))
-        self.screen.blit(exit_btn, (10, 120))
-        exit_btn_rect = exit_btn.get_rect(topleft=(10, 120))
+        self.screen.blit(menu_title, (menu_title_x, 20))
+        self.screen.blit(play_btn, (play_btn_x, play_btn_y))
+        self.screen.blit(options_btn, (options_btn_x, options_btn_y))
+        self.screen.blit(exit_btn, (exit_btn_x, exit_btn_y))
+
+        play_btn_rect = play_btn.get_rect(topleft=(play_btn_x, play_btn_y))
+        options_btn_rect = options_btn.get_rect(topleft=(options_btn_x, options_btn_y))
+        exit_btn_rect = exit_btn.get_rect(topleft=(exit_btn_x, exit_btn_y))
+
 
         pygame.display.update()
 
@@ -200,14 +251,45 @@ class Game:
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if play_btn_rect.collidepoint(event.pos):
                         return "scene_game"
+                    elif options_btn_rect.collidepoint(event.pos):
+                        return "scene_options_menu"
                     elif exit_btn_rect.collidepoint(event.pos):
                         self.exit_game()
 
-    def game(self):
-        self.screen = pygame.display.set_mode((self.game_screen_width, self.game_screen_height))
+    def options_menu(self):
+        title_font = pygame.font.Font(self.font_semi_bold, 35)
+        font = pygame.font.Font(self.font_bold, 25)
 
-        snake = self.Snake(self, 3, 4, 10, Vector2(1, 0), "Red")
+        menu_title = title_font.render("Options", False, (0, 0, 0))
+        back_btn = font.render("< Back", False, (0, 0, 0))
+
+        menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
+        back_btn_x, back_btn_y = center(back_btn.get_rect(), self.screen.get_rect())
+
+        self.screen.fill(self.light_grass_color)
+
+        self.screen.blit(menu_title, (menu_title_x, 20))
+        self.screen.blit(back_btn, (back_btn_x, back_btn_y))
+        back_btn_rect = back_btn.get_rect(topleft=(back_btn_x, back_btn_y))
+
+        pygame.display.update()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.exit_game()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        return "scene_game"
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if back_btn_rect.collidepoint(event.pos):
+                        return "scene_menu"
+
+    def game(self):
+        snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), "Red")
         fruit = self.spawn_fruit(snake)
+
+        self.score = 0  # reset score
 
         snake_move_timer = 0.0  # Time elapsed since the last move
         move_interval = 0.1  # Move snake every n seconds.
@@ -222,20 +304,12 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         return "scene_menu"
                     elif event.key == pygame.K_w or event.key == pygame.K_UP:
-                        if not snake.was_moved:
-                            snake.make_initial_move(Vector2(0, -1))
                         snake.orient(Vector2(0, -1))
                     elif event.key == pygame.K_s or event.key == pygame.K_DOWN:
-                        if not snake.was_moved:
-                            snake.make_initial_move(Vector2(0, 1))
                         snake.orient(Vector2(0, 1))
                     elif event.key == pygame.K_a or event.key == pygame.K_LEFT:
-                        if not snake.was_moved:
-                            snake.make_initial_move(Vector2(-1, 0))
                         snake.orient(Vector2(-1, 0))
                     elif event.key == pygame.K_d or event.key == pygame.K_RIGHT:
-                        if not snake.was_moved:
-                            snake.make_initial_move(Vector2(1, 0))
                         snake.orient(Vector2(1, 0))
 
             snake_move_timer += dt
@@ -258,6 +332,7 @@ class Game:
                     elif snake.body[-1] == fruit.pos:
                         fruit = self.spawn_fruit(snake)
                         snake.grow()
+                        self.score += 1
 
                 snake_move_timer -= move_interval  # Subtract the interval to preserve any excess time
 
@@ -267,31 +342,41 @@ class Game:
             self.screen.fill(self.light_grass_color)
             self.draw_grass()
 
+            fruit.draw()
+
             if snake.was_moved:
                 snake.draw(snake_interpolation_fraction)
             else:
                 snake.draw(0)
 
-            fruit.draw()
+
+
+            self.draw_status_bar()
 
             pygame.display.update()
 
     def game_over(self):
-        self.screen = pygame.display.set_mode((self.menu_screen_width, self.menu_screen_height))
+        title_font = pygame.font.Font(self.font_semi_bold, 35)
+        font = pygame.font.Font(self.font_bold, 25)
 
-        font = pygame.font.Font(self.font_semi_bold, 35)
-
-        menu_title = font.render("Game Over", False, (0, 0, 0))
+        menu_title = title_font.render("Game Over", False, (0, 0, 0))
         restart_btn = font.render("Restart", False, (0, 0, 0))
         back_btn = font.render("Main Menu", False, (0, 0, 0))
 
+        menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
+        restart_btn_x, restart_btn_y = center(restart_btn.get_rect(), self.screen.get_rect())
+        restart_btn_y -= 25
+        back_btn_x, back_btn_y = center(back_btn.get_rect(), self.screen.get_rect())
+        back_btn_y += 25
+
         self.screen.fill(self.light_grass_color)
 
-        self.screen.blit(menu_title, (10, 5))
-        self.screen.blit(restart_btn, (10, 80))
-        restart_btn_rect = restart_btn.get_rect(topleft=(10, 80))
-        self.screen.blit(back_btn, (10, 120))
-        back_btn_rect = back_btn.get_rect(topleft=(10, 120))
+        self.screen.blit(menu_title, (menu_title_x, 20))
+        self.screen.blit(restart_btn, (restart_btn_x, restart_btn_y))
+        self.screen.blit(back_btn, (back_btn_x, back_btn_y))
+
+        restart_btn_rect = restart_btn.get_rect(topleft=(restart_btn_x, restart_btn_y))
+        back_btn_rect = back_btn.get_rect(topleft=(back_btn_x, back_btn_y))
 
         pygame.display.update()
 
