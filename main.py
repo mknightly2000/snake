@@ -1,3 +1,4 @@
+import random
 import sys
 from collections import deque
 
@@ -52,7 +53,6 @@ class Game:
                     else:
                         cell_type = "body"
 
-
                 if cell_type == "head":
                     cell_orientation = self.current_orientation
                 else:
@@ -91,15 +91,31 @@ class Game:
             self.next_orientations.append(orientation)
 
         def move(self):
+            new_head = self.body[-1] + self.current_orientation
+
+            # Check for collisions with border
+            if not (0 <= new_head.x < self.game.board_dimensions[0] and 0 <= new_head.y < self.game.board_dimensions[
+                1]):
+                return False, "border"
+
+            # Check for self-collision with body (excluding the tail)
+            if new_head in list(self.body)[1:]:
+                return False, "self"
+
             # Update the snake's position by removing the tail and adding a new head in the current direction
             self.body.popleft()
-            self.body.append(self.body[-1] + self.current_orientation)
+            self.body.append(new_head)
             if len(self.next_orientations) != 0:
                 self.current_orientation = self.next_orientations.popleft()
+
+            return True, None
 
         def make_initial_move(self, orientation):
             self.current_orientation = orientation
             self.was_moved = True
+
+        def grow(self):
+            self.body.appendleft(self.body[0].copy())
 
     def __init__(self):
         self.menu_screen_width = 350
@@ -130,11 +146,21 @@ class Game:
                 scene = self.menu()
             elif scene == "scene_game":
                 scene = self.game()
+            elif scene == "scene_game_over":
+                scene = self.game_over()
 
     def exit_game(self) -> None:
         print("Exiting...")
         pygame.quit()
         sys.exit()
+
+    def spawn_fruit(self, snake):
+        while True:
+            x = random.randint(0, self.board_dimensions[0] - 1)
+            y = random.randint(0, self.board_dimensions[1] - 1)
+            pos = Vector2(x, y)
+            if pos not in snake.body:
+                return self.Fruit(self, "apple", x, y)
 
     def draw_grass(self):
         dark_rect = pygame.Rect(1, 2, self.cell_size, self.cell_size)
@@ -180,10 +206,11 @@ class Game:
     def game(self):
         self.screen = pygame.display.set_mode((self.game_screen_width, self.game_screen_height))
 
-        snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), "Red")
+        snake = self.Snake(self, 3, 4, 10, Vector2(1, 0), "Red")
+        fruit = self.spawn_fruit(snake)
 
         snake_move_timer = 0.0  # Time elapsed since the last move
-        move_interval = 0.1 # Move snake every n seconds.
+        move_interval = 0.1  # Move snake every n seconds.
 
         while True:
             dt = self.clock.tick(FPS) / 1000.0  # Elapsed time since last frame in seconds
@@ -218,7 +245,20 @@ class Game:
             # If enough time has passed, move the snake to the next grid position
             if snake_move_timer >= move_interval:
                 if snake.was_moved:
-                    snake.move()
+                    is_snake_move_successful, reason = snake.move()
+                    if not is_snake_move_successful:
+                        if reason == "border":
+                            print("Game over by collision with map border.")
+                        elif reason == "self":
+                            print("Game over by collision with self.")
+
+                        return "scene_game_over"
+
+                    # Collision detection with fruit
+                    elif snake.body[-1] == fruit.pos:
+                        fruit = self.spawn_fruit(snake)
+                        snake.grow()
+
                 snake_move_timer -= move_interval  # Subtract the interval to preserve any excess time
 
             snake_interpolation_fraction = snake_move_timer / move_interval  # A value between 0 and 1, indicating progress towards the next move
@@ -232,7 +272,41 @@ class Game:
             else:
                 snake.draw(0)
 
+            fruit.draw()
+
             pygame.display.update()
+
+    def game_over(self):
+        self.screen = pygame.display.set_mode((self.menu_screen_width, self.menu_screen_height))
+
+        font = pygame.font.Font(self.font_semi_bold, 35)
+
+        menu_title = font.render("Game Over", False, (0, 0, 0))
+        restart_btn = font.render("Restart", False, (0, 0, 0))
+        back_btn = font.render("Main Menu", False, (0, 0, 0))
+
+        self.screen.fill(self.light_grass_color)
+
+        self.screen.blit(menu_title, (10, 5))
+        self.screen.blit(restart_btn, (10, 80))
+        restart_btn_rect = restart_btn.get_rect(topleft=(10, 80))
+        self.screen.blit(back_btn, (10, 120))
+        back_btn_rect = back_btn.get_rect(topleft=(10, 120))
+
+        pygame.display.update()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.exit_game()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        return "scene_game"
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if restart_btn_rect.collidepoint(event.pos):
+                        return "scene_game"
+                    elif back_btn_rect.collidepoint(event.pos):
+                        return "scene_menu"
 
 
 if __name__ == "__main__":
