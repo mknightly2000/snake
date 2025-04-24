@@ -124,13 +124,21 @@ class Game:
             self.body.appendleft(self.body[0].copy())
 
     def __init__(self):
-        self.menu_screen_width = 350
-        self.menu_screen_height = 500
+        self.menu_screen_width = 288
+        self.menu_screen_height = 504
 
         self.screen = pygame.display.set_mode((self.menu_screen_width, self.menu_screen_height))
 
-        self.cell_size = 25  # the width and length of a cell in the board
-        self.board_dimensions = (14, 20)
+        self.cell_size = 18 # the width and length of a cell in the board
+
+        # Suggested cell sizes: 12, 18, 24, and 36
+        # LCM(12, 18, 24) = 72
+        # Playground dimensions should be multiples of 72.
+
+        board_width = self.menu_screen_width // self.cell_size
+        board_height = self.menu_screen_height // self.cell_size
+        self.board_dimensions = (board_width, board_height)
+
         self.game_screen_width = self.cell_size * self.board_dimensions[0]
         self.game_screen_height = self.cell_size * self.board_dimensions[1]
 
@@ -212,7 +220,7 @@ class Game:
     def game(self):
         self.screen = pygame.display.set_mode((self.game_screen_width, self.game_screen_height))
 
-        snake = self.Snake(self, 3, 4, 10, Vector2(1, 0), "Red")
+        snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), "Red")
         fruit = self.spawn_fruit(snake)
 
         snake_move_timer = 0.0  # Time elapsed since the last move
