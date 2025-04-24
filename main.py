@@ -173,7 +173,7 @@ class Game:
 
         while True:
             if scene == "scene_menu":
-                scene = self.menu()
+                scene = self.main_menu()
             elif scene == "scene_game":
                 scene = self.game()
             elif scene == "scene_game_over":
@@ -209,7 +209,7 @@ class Game:
 
         self.screen.blit(score_txt, (x, y))
 
-    def menu(self):
+    def main_menu(self):
         title_font = pygame.font.Font(self.font_semi_bold, 35)
         font = pygame.font.Font(self.font_bold, 25)
 
