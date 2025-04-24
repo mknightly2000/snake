@@ -8,6 +8,16 @@ from pygame import Vector2
 FPS = 60
 
 
+def center(obj, parent_obj):
+    parent_obj_center_x = parent_obj.width / 2
+    parent_obj_center_y = parent_obj.height / 2
+
+    x = parent_obj.x + (parent_obj_center_x - obj.width / 2)
+    y = parent_obj.y + (parent_obj_center_y - obj.height / 2)
+
+    return x, y
+
+
 class Game:
     class Fruit:
         def __init__(self, game, fruit_type, x, y):
