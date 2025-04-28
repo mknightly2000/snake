@@ -191,7 +191,7 @@ class Game:
         # settings
         self.settings = {
             "board_size" : {"label": "Board Size", "options": ["Small", "Medium", "Large", "Extra Large"], "selected_option": "Medium"},
-            "snake_color": {"label": "Snake Color", "options": ["Red", "Green", "Blue"], "selected_option": "Red"},
+            "snake_color": {"label": "Snake Color", "options": ["Red", "Blue", "Orange", "Pink", "White", "Black"], "selected_option": "Red"},
             "fruit_color": {"label": "Fruit Color", "options": ["Purple", "Black", "White"], "selected_option": "Purple"},
             "num_fruits" : {"label": "Number of Fruits", "options": ["One", "Two", "Three"], "selected_option": "One"},
             "snake_speed": {"label"         : "Snake Speed", "options": ["Slow", "Medium", "Fast", "Very Fast"],
@@ -225,6 +225,8 @@ class Game:
         self.light_grass_color = (165, 207, 82)
         self.dark_grass_color = (155, 193, 77)
 
+        self.snake_color = (255, 0, 0)
+
         self.score = 0
 
         self.screen = pygame.display.set_mode((self.viewport_width, self.viewport_height))
@@ -253,6 +255,20 @@ class Game:
         board_num_cells_x_direction = self.board_width // self.cell_size
         board_num_cells_y_direction = self.board_height // self.cell_size
         self.board_dimensions = (board_num_cells_x_direction, board_num_cells_y_direction)
+
+        # Update snake color
+        if setting_snake_color == "Red":
+            self.snake_color = (255, 0, 0)
+        elif setting_snake_color == "Blue":
+            self.snake_color = (0, 0, 255)
+        elif setting_snake_color == "Orange":
+            self.snake_color = (255, 180, 0)
+        elif setting_snake_color == "Pink":
+            self.snake_color = (178, 0, 211)
+        elif setting_snake_color == "White":
+            self.snake_color = (217, 220, 238)
+        elif setting_snake_color == "Black":
+            self.snake_color = (50, 50, 50)
 
     def run(self) -> None:
         pygame.display.set_caption("Snake")
@@ -400,7 +416,7 @@ class Game:
             pygame.display.update()
 
     def game(self):
-        snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), "Red")
+        snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), self.snake_color)
         fruit = self.spawn_fruit(snake)
 
         self.score = 0  # reset score
