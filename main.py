@@ -226,6 +226,7 @@ class Game:
         self.dark_grass_color = (155, 193, 77)
 
         self.snake_color = (255, 0, 0)
+        self.snake_speed = 9
 
         self.score = 0
 
@@ -269,6 +270,16 @@ class Game:
             self.snake_color = (217, 220, 238)
         elif setting_snake_color == "Black":
             self.snake_color = (50, 50, 50)
+
+        # Update snake speed
+        if setting_snake_speed == "Slow":
+            self.snake_speed = 6
+        elif setting_snake_speed == "Medium":
+            self.snake_speed = 9
+        elif setting_snake_speed == "Fast":
+            self.snake_speed = 12
+        elif setting_snake_speed == "Very Fast":
+            self.snake_speed = 15
 
     def run(self) -> None:
         pygame.display.set_caption("Snake")
@@ -422,7 +433,7 @@ class Game:
         self.score = 0  # reset score
 
         snake_move_timer = 0.0  # Time elapsed since the last move
-        move_interval = 0.1  # Move snake every n seconds.
+        move_interval = 1 / self.snake_speed  # Move snake every n seconds.
 
         while True:
             dt = self.clock.tick(FPS) / 1000.0  # Elapsed time since last frame in seconds
