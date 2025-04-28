@@ -188,8 +188,9 @@ class Game:
             self.body.appendleft(self.body[0].copy())
 
     def __init__(self):
+        # settings
         self.settings = {
-            "board_size" : {"label": "Board Size", "options": ["Small", "Medium", "Large"], "selected_option": "Medium"},
+            "board_size" : {"label": "Board Size", "options": ["Small", "Medium", "Large", "Extra Large"], "selected_option": "Medium"},
             "snake_color": {"label": "Snake Color", "options": ["Red", "Green", "Blue"], "selected_option": "Red"},
             "fruit_color": {"label": "Fruit Color", "options": ["Purple", "Black", "White"], "selected_option": "Purple"},
             "num_fruits" : {"label": "Number of Fruits", "options": ["One", "Two", "Three"], "selected_option": "One"},
@@ -198,6 +199,7 @@ class Game:
             "game_mode"  : {"label": "Game Mode", "options": ["Regular", "Infinite", "Peaceful"], "selected_option": "Regular"},
         }
 
+        # params
         self.board_width = 288
         self.board_height = 432
         self.status_bar_height = 54
@@ -205,11 +207,11 @@ class Game:
         self.viewport_width = self.board_width
         self.viewport_height = self.board_height + self.status_bar_height
 
-        self.cell_size = 24  # the width and length of a cell in the board
-
         # Suggested cell sizes: 12, 18, 24, and 36
         # LCM(12, 18, 24) = 72
         # Playground dimensions should be multiples of 72.
+
+        self.cell_size = 24  # the width and length of a cell in the board
 
         board_num_cells_x_direction = self.board_width // self.cell_size
         board_num_cells_y_direction = self.board_height // self.cell_size
@@ -229,6 +231,28 @@ class Game:
         self.clock = pygame.time.Clock()
 
         pygame.init()
+
+    def update_game_settings(self):
+        setting_board_size = self.settings["board_size"]["selected_option"]
+        setting_snake_color = self.settings["snake_color"]["selected_option"]
+        setting_fruit_color = self.settings["fruit_color"]["selected_option"]
+        setting_num_fruits = self.settings["num_fruits"]["selected_option"]
+        setting_snake_speed = self.settings["snake_speed"]["selected_option"]
+        setting_game_mode = self.settings["game_mode"]["selected_option"]
+
+        # Update board size
+        if setting_board_size == "Small":
+            self.cell_size = 36
+        elif setting_board_size == "Medium":
+            self.cell_size = 24
+        elif setting_board_size == "Large":
+            self.cell_size = 18
+        elif setting_board_size == "Extra Large":
+            self.cell_size = 12
+
+        board_num_cells_x_direction = self.board_width // self.cell_size
+        board_num_cells_y_direction = self.board_height // self.cell_size
+        self.board_dimensions = (board_num_cells_x_direction, board_num_cells_y_direction)
 
     def run(self) -> None:
         pygame.display.set_caption("Snake")
@@ -370,6 +394,7 @@ class Game:
                             self.settings[setting_key]["selected_option"] = self.settings[setting_key]["options"][new_selected_option_index]
                             break
                     if back_btn_rect.collidepoint(event.pos):
+                        self.update_game_settings()
                         return "scene_menu"
 
             pygame.display.update()
