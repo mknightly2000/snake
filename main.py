@@ -20,7 +20,7 @@ def center(obj, parent_obj):
     return x, y
 
 
-def select_ui(screen, x, y, options, selected_index, is_open, drop_down_font, label_font, width, label=None):
+def select_ui(screen, x, y, selected_option, drop_down_font, label_font, width, label=None):
     """
     Creates a dropdown component at the specified position and returns its rectangles.
 
@@ -40,7 +40,7 @@ def select_ui(screen, x, y, options, selected_index, is_open, drop_down_font, la
     - dropdown_rect: Pygame Rect of the dropdown button
     """
     # Calculate the maximum width based on the longest option
-    selected_text = drop_down_font.render(options[selected_index], False, (255, 255, 255))
+    selected_text = drop_down_font.render(selected_option, False, (255, 255, 255))
     height = selected_text.get_height()
     select_rect = pygame.Rect(x, y, width, height)
 
@@ -188,14 +188,15 @@ class Game:
             self.body.appendleft(self.body[0].copy())
 
     def __init__(self):
-        self.options = [
-            {"label": "Board Size", "options": ["Small", "Medium", "Large"], "selected_index": 1},
-            {"label": "Snake Color", "options": ["Red", "Green", "Blue"], "selected_index": 0},
-            {"label": "Fruit Color", "options": ["Purple", "Black", "White"], "selected_index": 0},
-            {"label": "Number of Fruits", "options": ["One", "Two", "Three"], "selected_index": 0},
-            {"label": "Snake Speed", "options": ["Slow", "Medium", "Fast", "Very Fast"], "selected_index": 1},
-            {"label": "Game Mode", "options": ["Regular", "Infinite", "Peaceful"], "selected_index": 0},
-        ]
+        self.settings = {
+            "board_size" : {"label": "Board Size", "options": ["Small", "Medium", "Large"], "selected_option": "Medium"},
+            "snake_color": {"label": "Snake Color", "options": ["Red", "Green", "Blue"], "selected_option": "Red"},
+            "fruit_color": {"label": "Fruit Color", "options": ["Purple", "Black", "White"], "selected_option": "Purple"},
+            "num_fruits" : {"label": "Number of Fruits", "options": ["One", "Two", "Three"], "selected_option": "One"},
+            "snake_speed": {"label"         : "Snake Speed", "options": ["Slow", "Medium", "Fast", "Very Fast"],
+                            "selected_option": "Medium"},
+            "game_mode"  : {"label": "Game Mode", "options": ["Regular", "Infinite", "Peaceful"], "selected_option": "Regular"},
+        }
 
         self.board_width = 288
         self.board_height = 432
@@ -344,17 +345,15 @@ class Game:
         while True:
             self.clock.tick(FPS)
 
-            select_rects = []
-            for i, setting in enumerate(self.options):
-                options = setting["options"]
-                selected_index = setting["selected_index"]
+            select_rects = {}
+            for i, (setting_key, setting) in enumerate(self.settings.items()):
                 label = setting["label"]
+                selected_option = setting["selected_option"]
 
-                select_rect = select_ui(self.screen, dropdown_col_x, 100 + i * 55, options, selected_index, False, font,
-                                        label_font,
-                                        dropdown_width, label)
+                select_rect = select_ui(self.screen, dropdown_col_x, 100 + i * 55, selected_option, font,
+                                        label_font, dropdown_width, label)
 
-                select_rects.append(select_rect)
+                select_rects[setting_key] = select_rect
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -363,10 +362,12 @@ class Game:
                     if event.key == pygame.K_RETURN:
                         return "scene_game"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    for i, select_rect in enumerate(select_rects):
+                    for setting_key, select_rect in select_rects.items():
                         if select_rect.collidepoint(event.pos):
-                            setting = self.options[i]
-                            setting["selected_index"] = (setting["selected_index"] + 1) % len(setting["options"])
+                            prev_selected_option = self.settings[setting_key]["selected_option"]
+                            prev_selected_option_index = self.settings[setting_key]["options"].index(prev_selected_option)
+                            new_selected_option_index = (prev_selected_option_index + 1) % len(self.settings[setting_key]["options"])
+                            self.settings[setting_key]["selected_option"] = self.settings[setting_key]["options"][new_selected_option_index]
                             break
                     if back_btn_rect.collidepoint(event.pos):
                         return "scene_menu"
