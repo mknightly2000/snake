@@ -321,12 +321,17 @@ class Game:
     def options_menu(self):
         title_font = pygame.font.Font(self.font_semi_bold, 35)
         font = pygame.font.Font(self.font_bold, 25)
+        label_font = pygame.font.Font(self.font_bold, 15)
+
+        dropdown_width = 200
+        dropdown_col_x = (self.viewport_width - dropdown_width) / 2
 
         menu_title = title_font.render("Options", False, (0, 0, 0))
         back_btn = font.render("Back", False, (0, 0, 0))
 
         menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
         back_btn_x, back_btn_y = center(back_btn.get_rect(), self.screen.get_rect())
+        back_btn_y += 200
 
         self.screen.fill(self.light_grass_color)
 
@@ -337,6 +342,20 @@ class Game:
         pygame.display.update()
 
         while True:
+            self.clock.tick(FPS)
+
+            select_rects = []
+            for i, setting in enumerate(self.options):
+                options = setting["options"]
+                selected_index = setting["selected_index"]
+                label = setting["label"]
+
+                select_rect = select_ui(self.screen, dropdown_col_x, 100 + i * 55, options, selected_index, False, font,
+                                        label_font,
+                                        dropdown_width, label)
+
+                select_rects.append(select_rect)
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.exit_game()
@@ -344,8 +363,15 @@ class Game:
                     if event.key == pygame.K_RETURN:
                         return "scene_game"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    for i, select_rect in enumerate(select_rects):
+                        if select_rect.collidepoint(event.pos):
+                            setting = self.options[i]
+                            setting["selected_index"] = (setting["selected_index"] + 1) % len(setting["options"])
+                            break
                     if back_btn_rect.collidepoint(event.pos):
                         return "scene_menu"
+
+            pygame.display.update()
 
     def game(self):
         snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), "Red")
