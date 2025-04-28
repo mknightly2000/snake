@@ -188,6 +188,15 @@ class Game:
             self.body.appendleft(self.body[0].copy())
 
     def __init__(self):
+        self.options = [
+            {"label": "Board Size", "options": ["Small", "Medium", "Large"], "selected_index": 1},
+            {"label": "Snake Color", "options": ["Red", "Green", "Blue"], "selected_index": 0},
+            {"label": "Fruit Color", "options": ["Purple", "Black", "White"], "selected_index": 0},
+            {"label": "Number of Fruits", "options": ["One", "Two", "Three"], "selected_index": 0},
+            {"label": "Snake Speed", "options": ["Slow", "Medium", "Fast", "Very Fast"], "selected_index": 1},
+            {"label": "Game Mode", "options": ["Regular", "Infinite", "Peaceful"], "selected_index": 0},
+        ]
+
         self.board_width = 288
         self.board_height = 432
         self.status_bar_height = 54
