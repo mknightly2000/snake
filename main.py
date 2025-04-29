@@ -464,7 +464,7 @@ class Game:
         snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), self.snake_color)
 
         fruits = []
-        for _ in range(10):
+        for _ in range(self.num_fruits):
             new_fruit = self.spawn_fruit(snake, fruits)
             fruits.append(new_fruit)
 
