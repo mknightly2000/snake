@@ -9,6 +9,7 @@ FPS = 60
 
 
 # TODO: Fix bug when snake's initial move is towards its tail.
+# TODO: Start snake in the center
 
 def center(obj, parent_obj):
     parent_obj_center_x = parent_obj.width / 2
@@ -74,15 +75,15 @@ def select_ui(screen, x, y, selected_option, drop_down_font, label_font, width, 
 
 class Game:
     class Fruit:
-        def __init__(self, game, fruit_type, x, y):
+        def __init__(self, game, color, x, y):
             self.game = game
-            self.type = "apple"
+            self.color = color
             self.pos = Vector2(x, y)
 
         def draw(self):
             fruit_rect = pygame.Rect(self.pos.x * game.cell_size, self.pos.y * game.cell_size, game.cell_size,
                                      game.cell_size)
-            pygame.draw.rect(self.game.screen, pygame.Color(184, 130, 238), fruit_rect)
+            pygame.draw.rect(self.game.screen, self.color, fruit_rect)
 
     class Snake:
         def __init__(self, game, x, y, initial_size, initial_orientation, color):
@@ -192,7 +193,7 @@ class Game:
         self.settings = {
             "board_size" : {"label": "Board Size", "options": ["Small", "Medium", "Large", "Extra Large"], "selected_option": "Medium"},
             "snake_color": {"label": "Snake Color", "options": ["Red", "Blue", "Orange", "Pink", "White", "Black"], "selected_option": "Red"},
-            "fruit_color": {"label": "Fruit Color", "options": ["Purple", "Black", "White"], "selected_option": "Purple"},
+            "fruit_color": {"label": "Fruit Color", "options": ["Red", "Blue", "Orange", "Purple"], "selected_option": "Purple"},
             "num_fruits" : {"label": "Number of Fruits", "options": ["One", "Two", "Three"], "selected_option": "One"},
             "snake_speed": {"label"         : "Snake Speed", "options": ["Slow", "Medium", "Fast", "Very Fast"],
                             "selected_option": "Medium"},
@@ -226,6 +227,7 @@ class Game:
         self.dark_grass_color = (155, 193, 77)
 
         self.snake_color = (255, 0, 0)
+        self.fruit_color = (184, 130, 238)
         self.snake_speed = 9
 
         self.score = 0
@@ -271,6 +273,18 @@ class Game:
         elif setting_snake_color == "Black":
             self.snake_color = (50, 50, 50)
 
+
+        # Update fruit color
+        if setting_fruit_color == "Red":
+            self.fruit_color = (212, 76, 77)
+        elif setting_fruit_color == "Blue":
+            self.fruit_color = (140, 156, 200)
+        elif setting_fruit_color == "Orange":
+            self.fruit_color = (208, 125, 0)
+        elif setting_fruit_color == "Purple":
+            self.fruit_color = (184, 130, 238)
+
+
         # Update snake speed
         if setting_snake_speed == "Slow":
             self.snake_speed = 6
@@ -307,7 +321,7 @@ class Game:
             y = random.randint(0, self.board_dimensions[1] - 1)
             pos = Vector2(x, y)
             if pos not in snake.body:
-                return self.Fruit(self, "apple", x, y)
+                return self.Fruit(self, self.fruit_color, x, y)
 
     def draw_grass(self):
         for col in range(self.board_dimensions[0]):
