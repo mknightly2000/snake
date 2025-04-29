@@ -191,13 +191,18 @@ class Game:
     def __init__(self):
         # settings
         self.settings = {
-            "board_size" : {"label": "Board Size", "options": ["Small", "Medium", "Large", "Extra Large"], "selected_option": "Medium"},
-            "snake_color": {"label": "Snake Color", "options": ["Red", "Blue", "Orange", "Pink", "White", "Black"], "selected_option": "Red"},
-            "fruit_color": {"label": "Fruit Color", "options": ["Red", "Blue", "Orange", "Purple"], "selected_option": "Purple"},
-            "num_fruits" : {"label": "Number of Fruits", "options": ["One", "Two", "Three"], "selected_option": "One"},
-            "snake_speed": {"label"         : "Snake Speed", "options": ["Slow", "Medium", "Fast", "Very Fast"],
+            "board_size" : {"label"          : "Board Size", "options": ["Small", "Medium", "Large", "Extra Large"],
                             "selected_option": "Medium"},
-            "game_mode"  : {"label": "Game Mode", "options": ["Regular", "Infinite", "Peaceful"], "selected_option": "Regular"},
+            "snake_color": {"label"          : "Snake Color",
+                            "options"        : ["Red", "Blue", "Orange", "Pink", "White", "Black"],
+                            "selected_option": "Red"},
+            "fruit_color": {"label"          : "Fruit Color", "options": ["Red", "Blue", "Orange", "Purple"],
+                            "selected_option": "Purple"},
+            "num_fruits" : {"label": "Number of Fruits", "options": ["One", "Two", "Three"], "selected_option": "One"},
+            "snake_speed": {"label"          : "Snake Speed", "options": ["Slow", "Medium", "Fast", "Very Fast"],
+                            "selected_option": "Medium"},
+            "game_mode"  : {"label"          : "Game Mode", "options": ["Regular", "Infinite", "Peaceful"],
+                            "selected_option": "Regular"},
         }
 
         # params
@@ -228,6 +233,7 @@ class Game:
 
         self.snake_color = (255, 0, 0)
         self.fruit_color = (184, 130, 238)
+        self.num_fruits = 1
         self.snake_speed = 9
 
         self.score = 0
@@ -273,7 +279,6 @@ class Game:
         elif setting_snake_color == "Black":
             self.snake_color = (50, 50, 50)
 
-
         # Update fruit color
         if setting_fruit_color == "Red":
             self.fruit_color = (212, 76, 77)
@@ -284,6 +289,13 @@ class Game:
         elif setting_fruit_color == "Purple":
             self.fruit_color = (184, 130, 238)
 
+        # Update number of fruits
+        if setting_num_fruits == "One":
+            self.num_fruits = 1
+        elif setting_num_fruits == "Two":
+            self.num_fruits = 2
+        elif setting_num_fruits == "Three":
+            self.num_fruits = 3
 
         # Update snake speed
         if setting_snake_speed == "Slow":
@@ -315,12 +327,17 @@ class Game:
         pygame.quit()
         sys.exit()
 
-    def spawn_fruit(self, snake):
+    def spawn_fruit(self, snake, existing_fruits):
+        # TODO: consider the state were there are not much/enough cells remaining on the board i.e. when the snake is too large.̵
+        occupied_positions = snake.body.copy()
+        for fruit in existing_fruits:
+            occupied_positions.append(fruit.pos)
+
         while True:
             x = random.randint(0, self.board_dimensions[0] - 1)
             y = random.randint(0, self.board_dimensions[1] - 1)
             pos = Vector2(x, y)
-            if pos not in snake.body:
+            if pos not in occupied_positions:
                 return self.Fruit(self, self.fruit_color, x, y)
 
     def draw_grass(self):
@@ -430,9 +447,12 @@ class Game:
                     for setting_key, select_rect in select_rects.items():
                         if select_rect.collidepoint(event.pos):
                             prev_selected_option = self.settings[setting_key]["selected_option"]
-                            prev_selected_option_index = self.settings[setting_key]["options"].index(prev_selected_option)
-                            new_selected_option_index = (prev_selected_option_index + 1) % len(self.settings[setting_key]["options"])
-                            self.settings[setting_key]["selected_option"] = self.settings[setting_key]["options"][new_selected_option_index]
+                            prev_selected_option_index = self.settings[setting_key]["options"].index(
+                                prev_selected_option)
+                            new_selected_option_index = (prev_selected_option_index + 1) % len(
+                                self.settings[setting_key]["options"])
+                            self.settings[setting_key]["selected_option"] = self.settings[setting_key]["options"][
+                                new_selected_option_index]
                             break
                     if back_btn_rect.collidepoint(event.pos):
                         self.update_game_settings()
@@ -442,7 +462,11 @@ class Game:
 
     def game(self):
         snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), self.snake_color)
-        fruit = self.spawn_fruit(snake)
+
+        fruits = []
+        for _ in range(10):
+            new_fruit = self.spawn_fruit(snake, fruits)
+            fruits.append(new_fruit)
 
         self.score = 0  # reset score
 
@@ -483,11 +507,15 @@ class Game:
 
                         return "scene_game_over"
 
-                    # Collision detection with fruit
-                    elif snake.body[-1] == fruit.pos:
-                        fruit = self.spawn_fruit(snake)
-                        snake.grow()
-                        self.score += 1
+                    # Collision detection with fruits
+                    for fruit in fruits[:]:
+                        if snake.body[-1] == fruit.pos:
+                            fruits.remove(fruit)
+                            new_fruit = self.spawn_fruit(snake, fruits)
+                            fruits.append(new_fruit)
+                            snake.grow()
+                            self.score += 1
+                            break
 
                 snake_move_timer -= move_interval  # Subtract the interval to preserve any excess time
 
@@ -497,7 +525,8 @@ class Game:
             self.screen.fill(self.light_grass_color)
             self.draw_grass()
 
-            fruit.draw()
+            for fruit in fruits:
+                fruit.draw()
 
             if snake.was_moved:
                 snake.draw(snake_interpolation_fraction)
