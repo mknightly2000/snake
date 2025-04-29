@@ -1,3 +1,4 @@
+import math
 import random
 import sys
 from collections import deque
@@ -461,7 +462,9 @@ class Game:
             pygame.display.update()
 
     def game(self):
-        snake = self.Snake(self, 3, 4, 4, Vector2(1, 0), self.snake_color)
+        snake_x = math.floor(self.board_dimensions[0] * 0.15)
+        snake_y = math.floor(self.board_dimensions[1] / 2)
+        snake = self.Snake(self, snake_x, snake_y, 4, Vector2(1, 0), self.snake_color)
 
         fruits = []
         for _ in range(self.num_fruits):
