@@ -100,7 +100,21 @@ class Game:
                 self.body.append(point)
 
         def draw(self, interpolation_fraction):
+            # create list of colors for each snake cell
+            color = self.color
+            factor = 0.999
+            color_list = []
+
+            for i in range(len(self.body)):
+                color_list.append(color)
+                color = pygame.Color(int(color[0] * factor), int(color[1] * factor), int(color[2] * factor))
+
+            color_list.reverse()
+
+            # draw each cell
             for i, cell in enumerate(self.body):
+                color = color_list[i]
+
                 # Determine the orientation for each segment:
                 # - For the head, use the current movement direction
                 # - For other segments, use the direction to the next segment
@@ -134,7 +148,7 @@ class Game:
                     self.game.cell_size
                 )
 
-                pygame.draw.rect(self.game.screen, pygame.Color(self.color), body_part_rect)
+                pygame.draw.rect(self.game.screen, color, body_part_rect)
 
                 # Fill in corners with snake color
                 if cell_type == "corner" or cell_type == "head":
@@ -144,7 +158,11 @@ class Game:
                         self.game.cell_size,
                         self.game.cell_size
                     )
-                    pygame.draw.rect(self.game.screen, pygame.Color(self.color), corner_rect)
+                    pygame.draw.rect(self.game.screen, color, corner_rect)
+
+
+
+
 
         def orient(self, orientation):
             # Make initial move
