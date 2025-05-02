@@ -154,10 +154,10 @@ class Game:
                     else:
                         cell_type = "body"
 
-                if cell_type == "head":
-                    cell_orientation = self.current_orientation
-                else:
-                    cell_orientation = self.body[i + 1] - cell
+                cell_orientation = self._calc_cell_orientation(cell, i)
+                if cell_type != "head" and (abs(cell.x - self.body[i + 1].x) > 1 or abs(
+                        cell.y - self.body[i + 1].y) > 1):  # keep cell moving towards border if wrapping is happening
+                    cell_orientation = -cell_orientation
 
                 # Move every cell a bit towards the next cell
                 render_pos = cell + interpolation_fraction * cell_orientation
