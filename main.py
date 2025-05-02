@@ -108,6 +108,18 @@ class Game:
                 self.game.cell_size
             )
             pygame.draw.rect(self.game.screen, color, cell_rect)
+
+        def _calc_cell_orientation(self, cell, cell_index):
+            if cell_index == len(self.body) - 1:
+                return self.current_orientation
+
+            cell_orientation = self.body[cell_index + 1] - cell
+
+            if cell_orientation.x == 0 and cell_orientation.y == 0:
+                return cell_orientation
+            else:
+                return cell_orientation.normalize()
+
         def draw(self, interpolation_fraction):
             # create list of colors for each snake cell
             color = self.color
