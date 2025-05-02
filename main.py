@@ -10,7 +10,7 @@ FPS = 60
 
 
 # TODO: Fix bug when snake's initial move is towards its tail.
-# TODO: Start snake in the center
+# TODO: End game using render_pos instead of cell position.
 
 def center(obj, parent_obj):
     parent_obj_center_x = parent_obj.width / 2
@@ -163,6 +163,23 @@ class Game:
                 render_pos = cell + interpolation_fraction * cell_orientation
 
                 self._draw_cell(render_pos, color)
+
+                # Make wrapping smooth
+                if cell_type != "head" and (abs(cell.x - self.body[i + 1].x) > 1 or abs(
+                        cell.y - self.body[i + 1].y) > 1):  # keep cell moving towards border if wrapping is happening
+                    self._draw_cell(Vector2(self.body[i + 1].x, self.body[i + 1].y), color)
+                elif cell_type == "head":
+                    extra_x = abs(render_pos.x - cell.x)
+                    extra_y = abs(render_pos.y - cell.y)
+
+                    if render_pos.x < 0:
+                        self._draw_cell(Vector2(game.board_dimensions[0] - extra_x, cell.y), color)
+                    elif render_pos.x > game.board_dimensions[0] - 1:
+                        self._draw_cell(Vector2(-1 + extra_x, cell.y), color)
+                    elif render_pos.y < 0:
+                        self._draw_cell(Vector2(cell.x, game.board_dimensions[1] - extra_y), color)
+                    elif render_pos.y > game.board_dimensions[1] - 1:
+                        self._draw_cell(Vector2(cell.x, -1 + extra_y), color)
 
                 # Fill in corners with snake color
                 if cell_type == "corner" or cell_type == "head":
