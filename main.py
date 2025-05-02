@@ -10,7 +10,7 @@ FPS = 60
 
 
 # TODO: Fix bug when snake's initial move is towards its tail.
-# TODO: Start snake in the center
+# TODO: End game using render_pos instead of cell position.
 
 def center(obj, parent_obj):
     parent_obj_center_x = parent_obj.width / 2
@@ -99,6 +99,27 @@ class Game:
                 point = Vector2(x, y) + initial_orientation * i
                 self.body.append(point)
 
+        def _draw_cell(self, pos, color):
+            """Draw a single cell at the given position."""
+            cell_rect = pygame.Rect(
+                pos.x * self.game.cell_size,
+                pos.y * self.game.cell_size,
+                self.game.cell_size,
+                self.game.cell_size
+            )
+            pygame.draw.rect(self.game.screen, color, cell_rect)
+
+        def _calc_cell_orientation(self, cell, cell_index):
+            if cell_index == len(self.body) - 1:
+                return self.current_orientation
+
+            cell_orientation = self.body[cell_index + 1] - cell
+
+            if cell_orientation.x == 0 and cell_orientation.y == 0:
+                return cell_orientation
+            else:
+                return cell_orientation.normalize()
+
         def draw(self, interpolation_fraction):
             # create list of colors for each snake cell
             color = self.color
@@ -133,36 +154,36 @@ class Game:
                     else:
                         cell_type = "body"
 
-                if cell_type == "head":
-                    cell_orientation = self.current_orientation
-                else:
-                    cell_orientation = self.body[i + 1] - cell
+                cell_orientation = self._calc_cell_orientation(cell, i)
+                if cell_type != "head" and (abs(cell.x - self.body[i + 1].x) > 1 or abs(
+                        cell.y - self.body[i + 1].y) > 1):  # keep cell moving towards border if wrapping is happening
+                    cell_orientation = -cell_orientation
 
                 # Move every cell a bit towards the next cell
                 render_pos = cell + interpolation_fraction * cell_orientation
 
-                body_part_rect = pygame.Rect(
-                    render_pos.x * self.game.cell_size,
-                    render_pos.y * self.game.cell_size,
-                    self.game.cell_size,
-                    self.game.cell_size
-                )
+                self._draw_cell(render_pos, color)
 
-                pygame.draw.rect(self.game.screen, color, body_part_rect)
+                # Make wrapping smooth
+                if cell_type != "head" and (abs(cell.x - self.body[i + 1].x) > 1 or abs(
+                        cell.y - self.body[i + 1].y) > 1):  # keep cell moving towards border if wrapping is happening
+                    self._draw_cell(Vector2(self.body[i + 1].x, self.body[i + 1].y), color)
+                elif cell_type == "head":
+                    extra_x = abs(render_pos.x - cell.x)
+                    extra_y = abs(render_pos.y - cell.y)
+
+                    if render_pos.x < 0:
+                        self._draw_cell(Vector2(game.board_dimensions[0] - extra_x, cell.y), color)
+                    elif render_pos.x > game.board_dimensions[0] - 1:
+                        self._draw_cell(Vector2(-1 + extra_x, cell.y), color)
+                    elif render_pos.y < 0:
+                        self._draw_cell(Vector2(cell.x, game.board_dimensions[1] - extra_y), color)
+                    elif render_pos.y > game.board_dimensions[1] - 1:
+                        self._draw_cell(Vector2(cell.x, -1 + extra_y), color)
 
                 # Fill in corners with snake color
                 if cell_type == "corner" or cell_type == "head":
-                    corner_rect = pygame.Rect(
-                        cell.x * self.game.cell_size,
-                        cell.y * self.game.cell_size,
-                        self.game.cell_size,
-                        self.game.cell_size
-                    )
-                    pygame.draw.rect(self.game.screen, color, corner_rect)
-
-
-
-
+                    self._draw_cell(cell, color)
 
         def orient(self, orientation):
             # Make initial move
@@ -183,14 +204,18 @@ class Game:
         def move(self):
             new_head = self.body[-1] + self.current_orientation
 
-            # Check for collisions with border
-            if not (0 <= new_head.x < self.game.board_dimensions[0] and 0 <= new_head.y < self.game.board_dimensions[
+            # Handle collision with border
+            if game.game_mode == "Infinite" or game.game_mode == "Peaceful":
+                new_head.x = new_head.x % self.game.board_dimensions[0]
+                new_head.y = new_head.y % self.game.board_dimensions[1]
+            elif not (0 <= new_head.x < self.game.board_dimensions[0] and 0 <= new_head.y < self.game.board_dimensions[
                 1]):
                 return False, "border"
 
-            # Check for self-collision with body (excluding the tail)
-            if new_head in list(self.body)[1:]:
-                return False, "self"
+            # Handle collision with self
+            if game.game_mode != "Peaceful":
+                if new_head in list(self.body)[1:]:
+                    return False, "self"
 
             # Update the snake's position by removing the tail and adding a new head in the current direction
             self.body.popleft()
@@ -254,6 +279,7 @@ class Game:
         self.fruit_color = (184, 130, 238)
         self.num_fruits = 1
         self.snake_speed = 9
+        self.game_mode = "Regular"
 
         self.score = 0
 
@@ -325,6 +351,14 @@ class Game:
             self.snake_speed = 12
         elif setting_snake_speed == "Very Fast":
             self.snake_speed = 15
+
+        # Update game mode
+        if setting_game_mode == "Regular":
+            self.game_mode = "Regular"
+        elif setting_game_mode == "Infinite":
+            self.game_mode = "Infinite"
+        elif setting_game_mode == "Peaceful":
+            self.game_mode = "Peaceful"
 
     def run(self) -> None:
         pygame.display.set_caption("Snake")
