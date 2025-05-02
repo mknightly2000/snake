@@ -188,6 +188,9 @@ class Game:
         def orient(self, orientation):
             # Make initial move
             if not self.was_moved:
+                if orientation == -self.current_orientation:
+                    return
+
                 self.current_orientation = orientation
                 self.was_moved = True
 
@@ -224,10 +227,6 @@ class Game:
                 self.current_orientation = self.next_orientations.popleft()
 
             return True, None
-
-        def make_initial_move(self, orientation):
-            self.current_orientation = orientation
-            self.was_moved = True
 
         def grow(self):
             self.body.appendleft(self.body[0].copy())
