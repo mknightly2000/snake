@@ -99,6 +99,15 @@ class Game:
                 point = Vector2(x, y) + initial_orientation * i
                 self.body.append(point)
 
+        def _draw_cell(self, pos, color):
+            """Draw a single cell at the given position."""
+            cell_rect = pygame.Rect(
+                pos.x * self.game.cell_size,
+                pos.y * self.game.cell_size,
+                self.game.cell_size,
+                self.game.cell_size
+            )
+            pygame.draw.rect(self.game.screen, color, cell_rect)
         def draw(self, interpolation_fraction):
             # create list of colors for each snake cell
             color = self.color
@@ -141,24 +150,11 @@ class Game:
                 # Move every cell a bit towards the next cell
                 render_pos = cell + interpolation_fraction * cell_orientation
 
-                body_part_rect = pygame.Rect(
-                    render_pos.x * self.game.cell_size,
-                    render_pos.y * self.game.cell_size,
-                    self.game.cell_size,
-                    self.game.cell_size
-                )
-
-                pygame.draw.rect(self.game.screen, color, body_part_rect)
+                self._draw_cell(render_pos, color)
 
                 # Fill in corners with snake color
                 if cell_type == "corner" or cell_type == "head":
-                    corner_rect = pygame.Rect(
-                        cell.x * self.game.cell_size,
-                        cell.y * self.game.cell_size,
-                        self.game.cell_size,
-                        self.game.cell_size
-                    )
-                    pygame.draw.rect(self.game.screen, color, corner_rect)
+                    self._draw_cell(cell, color)
 
         def orient(self, orientation):
             # Make initial move
