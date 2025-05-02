@@ -160,10 +160,6 @@ class Game:
                     )
                     pygame.draw.rect(self.game.screen, color, corner_rect)
 
-
-
-
-
         def orient(self, orientation):
             # Make initial move
             if not self.was_moved:
@@ -183,14 +179,18 @@ class Game:
         def move(self):
             new_head = self.body[-1] + self.current_orientation
 
-            # Check for collisions with border
-            if not (0 <= new_head.x < self.game.board_dimensions[0] and 0 <= new_head.y < self.game.board_dimensions[
+            # Handle collision with border
+            if game.game_mode == "Infinite" or game.game_mode == "Peaceful":
+                new_head.x = new_head.x % self.game.board_dimensions[0]
+                new_head.y = new_head.y % self.game.board_dimensions[1]
+            elif not (0 <= new_head.x < self.game.board_dimensions[0] and 0 <= new_head.y < self.game.board_dimensions[
                 1]):
                 return False, "border"
 
-            # Check for self-collision with body (excluding the tail)
-            if new_head in list(self.body)[1:]:
-                return False, "self"
+            # Handle collision with self
+            if game.game_mode != "Peaceful":
+                if new_head in list(self.body)[1:]:
+                    return False, "self"
 
             # Update the snake's position by removing the tail and adding a new head in the current direction
             self.body.popleft()
@@ -254,6 +254,7 @@ class Game:
         self.fruit_color = (184, 130, 238)
         self.num_fruits = 1
         self.snake_speed = 9
+        self.game_mode = "Regular"
 
         self.score = 0
 
@@ -325,6 +326,14 @@ class Game:
             self.snake_speed = 12
         elif setting_snake_speed == "Very Fast":
             self.snake_speed = 15
+
+        # Update game mode
+        if setting_game_mode == "Regular":
+            self.game_mode = "Regular"
+        elif setting_game_mode == "Infinite":
+            self.game_mode = "Infinite"
+        elif setting_game_mode == "Peaceful":
+            self.game_mode = "Peaceful"
 
     def run(self) -> None:
         pygame.display.set_caption("Snake")
