@@ -10,20 +10,6 @@ FPS = 60
 
 pygame.mixer.init()
 
-SELECT_SOUND = pygame.mixer.Sound('sounds/select.wav')
-MUNCHING_SOUND = pygame.mixer.Sound('sounds/munching.wav')
-COLLISION_SOUND = pygame.mixer.Sound('sounds/collision.wav')
-UP_SOUND = pygame.mixer.Sound('sounds/up.wav')
-DOWN_SOUND = pygame.mixer.Sound('sounds/down.wav')
-LEFT_SOUND = pygame.mixer.Sound('sounds/left.wav')
-RIGHT_SOUND = pygame.mixer.Sound('sounds/right.wav')
-
-UP_SOUND.set_volume(0.4)
-DOWN_SOUND.set_volume(0.4)
-LEFT_SOUND.set_volume(0.4)
-RIGHT_SOUND.set_volume(0.4)
-
-
 def center(obj, parent_obj):
     parent_obj_center_x = parent_obj.width / 2
     parent_obj_center_y = parent_obj.height / 2
@@ -201,13 +187,13 @@ class Game:
 
         def _play_orientation_sound(self, orientation):
             if orientation.x == 0 and orientation.y == 1:
-                UP_SOUND.play()
+                game._play_sound("up", 0.4)
             elif orientation.x == 0 and orientation.y == -1:
-                DOWN_SOUND.play()
+                game._play_sound("down", 0.4)
             elif orientation.x == 1 and orientation.y == 0:
-                RIGHT_SOUND.play()
+                game._play_sound("right", 0.4)
             elif orientation.x == -1 and orientation.y == 0:
-                LEFT_SOUND.play()
+                game._play_sound("left", 0.4)
 
         def orient(self, orientation):
             # Make initial move
@@ -285,7 +271,7 @@ class Game:
         self.num_fruits = 1
         self.snake_speed = 9
         self.game_mode = "Regular"
-        self.enable_sfx = True
+        self.sfx_enabled = True
 
         # params
         self.board_width = 288
@@ -313,6 +299,14 @@ class Game:
         self.clock = pygame.time.Clock()
 
         pygame.init()
+
+    def _play_sound(self, sound_name, volume=1.0):
+        if not self.sfx_enabled:
+            return
+
+        sound = pygame.mixer.Sound(f"sounds/{sound_name}.wav")
+        sound.set_volume(volume)
+        sound.play()
 
     def update_game_settings(self):
         setting_board_size = self.settings["board_size"]["selected_option"]
@@ -471,17 +465,17 @@ class Game:
                     self.exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        SELECT_SOUND.play()
+                        self._play_sound("select")
                         return "scene_game"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if play_btn_rect.collidepoint(event.pos):
-                        SELECT_SOUND.play()
+                        self._play_sound("select")
                         return "scene_game"
                     elif options_btn_rect.collidepoint(event.pos):
-                        SELECT_SOUND.play()
+                        self._play_sound("select")
                         return "scene_options_menu"
                     elif exit_btn_rect.collidepoint(event.pos):
-                        SELECT_SOUND.play()
+                        self._play_sound("select")
                         self.exit_game()
 
     def options_menu(self):
@@ -525,7 +519,7 @@ class Game:
                     self.exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        SELECT_SOUND.play()
+                        self._play_sound("select")
                         return "scene_game"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     for setting_key, select_rect in select_rects.items():
@@ -538,11 +532,11 @@ class Game:
                             self.settings[setting_key]["selected_option"] = self.settings[setting_key]["options"][
                                 new_selected_option_index]
 
-                            SELECT_SOUND.play()
+                            self._play_sound("select")
                             break
                     if back_btn_rect.collidepoint(event.pos):
                         self.update_game_settings()
-                        SELECT_SOUND.play()
+                        self._play_sound("select")
                         return "scene_menu"
 
             pygame.display.update()
@@ -589,7 +583,8 @@ class Game:
                 if snake.was_moved:
                     is_snake_move_successful, reason = snake.move()
                     if not is_snake_move_successful:
-                        COLLISION_SOUND.play()
+                        if game.sfx_enabled:
+                            self._play_sound("collision")
                         if reason == "border":
                             print("Game over by collision with map border.")
                         elif reason == "self":
@@ -605,7 +600,7 @@ class Game:
                             fruits.append(new_fruit)
                             snake.grow()
                             self.score += 1
-                            MUNCHING_SOUND.play()
+                            self._play_sound("munching")
                             break
 
                 snake_move_timer -= move_interval  # Subtract the interval to preserve any excess time
@@ -659,14 +654,14 @@ class Game:
                     self.exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        SELECT_SOUND.play()
+                        self._play_sound("select")
                         return "scene_game"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if restart_btn_rect.collidepoint(event.pos):
-                        SELECT_SOUND.play()
+                        self._play_sound("select")
                         return "scene_game"
                     elif back_btn_rect.collidepoint(event.pos):
-                        SELECT_SOUND.play()
+                        self._play_sound("select")
                         return "scene_menu"
 
 
