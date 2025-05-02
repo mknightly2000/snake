@@ -258,6 +258,7 @@ class Game:
                             "selected_option": "Medium"},
             "game_mode"  : {"label"          : "Game Mode", "options": ["Regular", "Infinite", "Peaceful"],
                             "selected_option": "Regular"},
+            "sfx_enabled": {"label"          : "SFX Enabled", "options": ["Yes", "No"], "selected_option": "Yes"}
         }
 
         # Suggested cell sizes: 12, 18, 24, and 36
@@ -276,7 +277,7 @@ class Game:
         # params
         self.board_width = 288
         self.board_height = 432
-        self.status_bar_height = 54
+        self.status_bar_height = 70
 
         self.viewport_width = self.board_width
         self.viewport_height = self.board_height + self.status_bar_height
@@ -315,6 +316,7 @@ class Game:
         setting_num_fruits = self.settings["num_fruits"]["selected_option"]
         setting_snake_speed = self.settings["snake_speed"]["selected_option"]
         setting_game_mode = self.settings["game_mode"]["selected_option"]
+        setting_sfx_enabled = self.settings["sfx_enabled"]["selected_option"]
 
         # Update board size
         if setting_board_size == "Small":
@@ -379,6 +381,12 @@ class Game:
             self.game_mode = "Infinite"
         elif setting_game_mode == "Peaceful":
             self.game_mode = "Peaceful"
+
+        # Update sfx settings
+        if setting_sfx_enabled == "Yes":
+            self.sfx_enabled = True
+        elif setting_sfx_enabled == "No":
+            self.sfx_enabled = False
 
     def run(self) -> None:
         pygame.display.set_caption("Snake")
@@ -480,24 +488,25 @@ class Game:
 
     def options_menu(self):
         title_font = pygame.font.Font(self.font_semi_bold, 35)
-        font = pygame.font.Font(self.font_bold, 25)
+        save_font = pygame.font.Font(self.font_bold, 25)
+        select_ui_font = pygame.font.Font(self.font_bold, 21)
         label_font = pygame.font.Font(self.font_bold, 15)
 
         dropdown_width = 200
         dropdown_col_x = (self.viewport_width - dropdown_width) / 2
 
         menu_title = title_font.render("Options", False, (0, 0, 0))
-        back_btn = font.render("Back", False, (0, 0, 0))
+        save_btn = save_font.render("Save", False, (0, 0, 0))
 
         menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
-        back_btn_x, back_btn_y = center(back_btn.get_rect(), self.screen.get_rect())
-        back_btn_y += 200
+        back_btn_x, back_btn_y = center(save_btn.get_rect(), self.screen.get_rect())
+        back_btn_y += 214
 
         self.screen.fill(self.light_grass_color)
 
         self.screen.blit(menu_title, (menu_title_x, 20))
-        self.screen.blit(back_btn, (back_btn_x, back_btn_y))
-        back_btn_rect = back_btn.get_rect(topleft=(back_btn_x, back_btn_y))
+        self.screen.blit(save_btn, (back_btn_x, back_btn_y))
+        back_btn_rect = save_btn.get_rect(topleft=(back_btn_x, back_btn_y))
 
         pygame.display.update()
 
@@ -509,7 +518,7 @@ class Game:
                 label = setting["label"]
                 selected_option = setting["selected_option"]
 
-                select_rect = select_ui(self.screen, dropdown_col_x, 100 + i * 55, selected_option, font,
+                select_rect = select_ui(self.screen, dropdown_col_x, 100 + i * 51, selected_option, select_ui_font,
                                         label_font, dropdown_width, label)
 
                 select_rects[setting_key] = select_rect
