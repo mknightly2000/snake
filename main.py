@@ -8,6 +8,21 @@ from pygame import Vector2
 
 FPS = 60
 
+pygame.mixer.init()
+SELECT_SOUND = pygame.mixer.Sound('sounds/select.wav')
+MUNCHING_SOUND = pygame.mixer.Sound('sounds/munching.wav')
+COLLISION_SOUND = pygame.mixer.Sound('sounds/collision.wav')
+UP_SOUND = pygame.mixer.Sound('sounds/up.wav')
+DOWN_SOUND = pygame.mixer.Sound('sounds/down.wav')
+LEFT_SOUND = pygame.mixer.Sound('sounds/left.wav')
+RIGHT_SOUND = pygame.mixer.Sound('sounds/right.wav')
+
+UP_SOUND.set_volume(0.4)
+DOWN_SOUND.set_volume(0.4)
+LEFT_SOUND.set_volume(0.4)
+RIGHT_SOUND.set_volume(0.4)
+
+
 def center(obj, parent_obj):
     parent_obj_center_x = parent_obj.width / 2
     parent_obj_center_y = parent_obj.height / 2
@@ -183,6 +198,16 @@ class Game:
                 if cell_type == "corner" or cell_type == "head":
                     self._draw_cell(cell, color)
 
+        def _play_orientation_sound(self, orientation):
+            if orientation.x == 0 and orientation.y == 1:
+                UP_SOUND.play()
+            elif orientation.x == 0 and orientation.y == -1:
+                DOWN_SOUND.play()
+            elif orientation.x == 1 and orientation.y == 0:
+                RIGHT_SOUND.play()
+            elif orientation.x == -1 and orientation.y == 0:
+                LEFT_SOUND.play()
+
         def orient(self, orientation):
             # Make initial move
             if not self.was_moved:
@@ -191,6 +216,7 @@ class Game:
 
                 self.current_orientation = orientation
                 self.was_moved = True
+                self._play_orientation_sound(orientation)
 
             # When initial move is completed
             if len(self.next_orientations) == 0:
@@ -201,6 +227,8 @@ class Game:
                     return
 
             self.next_orientations.append(orientation)
+            self._play_orientation_sound(orientation)
+
 
         def move(self):
             new_head = self.body[-1] + self.current_orientation
@@ -442,13 +470,17 @@ class Game:
                     self.exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
+                        SELECT_SOUND.play()
                         return "scene_game"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if play_btn_rect.collidepoint(event.pos):
+                        SELECT_SOUND.play()
                         return "scene_game"
                     elif options_btn_rect.collidepoint(event.pos):
+                        SELECT_SOUND.play()
                         return "scene_options_menu"
                     elif exit_btn_rect.collidepoint(event.pos):
+                        SELECT_SOUND.play()
                         self.exit_game()
 
     def options_menu(self):
@@ -492,6 +524,7 @@ class Game:
                     self.exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
+                        SELECT_SOUND.play()
                         return "scene_game"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     for setting_key, select_rect in select_rects.items():
@@ -503,9 +536,12 @@ class Game:
                                 self.settings[setting_key]["options"])
                             self.settings[setting_key]["selected_option"] = self.settings[setting_key]["options"][
                                 new_selected_option_index]
+
+                            SELECT_SOUND.play()
                             break
                     if back_btn_rect.collidepoint(event.pos):
                         self.update_game_settings()
+                        SELECT_SOUND.play()
                         return "scene_menu"
 
             pygame.display.update()
@@ -552,6 +588,7 @@ class Game:
                 if snake.was_moved:
                     is_snake_move_successful, reason = snake.move()
                     if not is_snake_move_successful:
+                        COLLISION_SOUND.play()
                         if reason == "border":
                             print("Game over by collision with map border.")
                         elif reason == "self":
@@ -567,6 +604,7 @@ class Game:
                             fruits.append(new_fruit)
                             snake.grow()
                             self.score += 1
+                            MUNCHING_SOUND.play()
                             break
 
                 snake_move_timer -= move_interval  # Subtract the interval to preserve any excess time
@@ -620,11 +658,14 @@ class Game:
                     self.exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
+                        SELECT_SOUND.play()
                         return "scene_game"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if restart_btn_rect.collidepoint(event.pos):
+                        SELECT_SOUND.play()
                         return "scene_game"
                     elif back_btn_rect.collidepoint(event.pos):
+                        SELECT_SOUND.play()
                         return "scene_menu"
 
 
