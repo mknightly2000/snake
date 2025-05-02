@@ -9,6 +9,7 @@ from pygame import Vector2
 FPS = 60
 
 pygame.mixer.init()
+
 SELECT_SOUND = pygame.mixer.Sound('sounds/select.wav')
 MUNCHING_SOUND = pygame.mixer.Sound('sounds/munching.wav')
 COLLISION_SOUND = pygame.mixer.Sound('sounds/collision.wav')
@@ -229,7 +230,6 @@ class Game:
             self.next_orientations.append(orientation)
             self._play_orientation_sound(orientation)
 
-
         def move(self):
             new_head = self.body[-1] + self.current_orientation
 
@@ -274,6 +274,19 @@ class Game:
                             "selected_option": "Regular"},
         }
 
+        # Suggested cell sizes: 12, 18, 24, and 36
+        # LCM(12, 18, 24) = 72
+        # Playground dimensions should be multiples of 72.
+
+        self.cell_size = 24  # the width and length of a cell in the board
+
+        self.snake_color = (255, 0, 0)
+        self.fruit_color = (184, 130, 238)
+        self.num_fruits = 1
+        self.snake_speed = 9
+        self.game_mode = "Regular"
+        self.enable_sfx = True
+
         # params
         self.board_width = 288
         self.board_height = 432
@@ -281,12 +294,6 @@ class Game:
 
         self.viewport_width = self.board_width
         self.viewport_height = self.board_height + self.status_bar_height
-
-        # Suggested cell sizes: 12, 18, 24, and 36
-        # LCM(12, 18, 24) = 72
-        # Playground dimensions should be multiples of 72.
-
-        self.cell_size = 24  # the width and length of a cell in the board
 
         board_num_cells_x_direction = self.board_width // self.cell_size
         board_num_cells_y_direction = self.board_height // self.cell_size
@@ -299,12 +306,6 @@ class Game:
 
         self.light_grass_color = (165, 207, 82)
         self.dark_grass_color = (155, 193, 77)
-
-        self.snake_color = (255, 0, 0)
-        self.fruit_color = (184, 130, 238)
-        self.num_fruits = 1
-        self.snake_speed = 9
-        self.game_mode = "Regular"
 
         self.score = 0
 
