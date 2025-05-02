@@ -8,6 +8,8 @@ from pygame import Vector2
 
 FPS = 60
 
+
+# TODO: Fix bug when snake's initial move is towards its tail.
 # TODO: End game using render_pos instead of cell position.
 
 def center(obj, parent_obj):
@@ -171,8 +173,7 @@ class Game:
                     extra_y = abs(render_pos.y - cell.y)
 
                     if render_pos.x < 0:
-                        self._draw_cell(Vector2(game.board_dimensions[0] - extra_x, cell.y), color)The snake could go backwards eating itself at the start of the game,
-which causes the game to crash.
+                        self._draw_cell(Vector2(game.board_dimensions[0] - extra_x, cell.y), color)
                     elif render_pos.x > game.board_dimensions[0] - 1:
                         self._draw_cell(Vector2(-1 + extra_x, cell.y), color)
                     elif render_pos.y < 0:
@@ -187,9 +188,6 @@ which causes the game to crash.
         def orient(self, orientation):
             # Make initial move
             if not self.was_moved:
-                if orientation == -self.current_orientation:
-                    return
-
                 self.current_orientation = orientation
                 self.was_moved = True
 
@@ -226,6 +224,10 @@ which causes the game to crash.
                 self.current_orientation = self.next_orientations.popleft()
 
             return True, None
+
+        def make_initial_move(self, orientation):
+            self.current_orientation = orientation
+            self.was_moved = True
 
         def grow(self):
             self.body.appendleft(self.body[0].copy())
