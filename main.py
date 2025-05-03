@@ -635,12 +635,22 @@ class Game:
     def game_over(self):
         title_font = pygame.font.Font(self.font_semi_bold, 35)
         font = pygame.font.Font(self.font_bold, 25)
+        smaller_font = pygame.font.Font(self.font_medium, 15)
 
         menu_title = title_font.render("Game Over", False, (0, 0, 0))
+        score = smaller_font.render("Your Score", False, (0, 0, 0))
+        score_value = title_font.render(str(self.score), False, (0, 0, 0))
         restart_btn = font.render("Restart", False, (0, 0, 0))
         back_btn = font.render("Main Menu", False, (0, 0, 0))
 
         menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
+        menu_title_y = 20
+
+        score_x = center(score.get_rect(), self.screen.get_rect())[0]
+        score_y = 95
+        score_value_x = center(score_value.get_rect(), self.screen.get_rect())[0]
+        score_value_y = score_y + score.get_rect().height + 10
+
         restart_btn_x, restart_btn_y = center(restart_btn.get_rect(), self.screen.get_rect())
         restart_btn_y -= 25
         back_btn_x, back_btn_y = center(back_btn.get_rect(), self.screen.get_rect())
@@ -648,7 +658,9 @@ class Game:
 
         self.screen.fill(self.light_grass_color)
 
-        self.screen.blit(menu_title, (menu_title_x, 20))
+        self.screen.blit(menu_title, (menu_title_x, menu_title_y))
+        self.screen.blit(score, (score_x, score_y))
+        self.screen.blit(score_value, (score_value_x, score_value_y))
         self.screen.blit(restart_btn, (restart_btn_x, restart_btn_y))
         self.screen.blit(back_btn, (back_btn_x, back_btn_y))
 
