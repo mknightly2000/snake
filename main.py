@@ -294,7 +294,9 @@ class Game:
         self.light_grass_color = (165, 207, 82)
         self.dark_grass_color = (155, 193, 77)
 
+        # Scores
         self.score = 0
+        self.high_scores = {}
 
         self.screen = pygame.display.set_mode((self.viewport_width, self.viewport_height))
         self.clock = pygame.time.Clock()
@@ -633,6 +635,21 @@ class Game:
             pygame.display.update()
 
     def game_over(self):
+        # Save high score
+        game_config = frozenset([
+            self.settings["board_size"]["selected_option"],
+            self.settings["num_fruits"]["selected_option"],
+            self.settings["snake_speed"]["selected_option"],
+            self.settings["game_mode"]["selected_option"],
+        ])
+
+        if game_config in self.high_scores:
+            current_high_score = self.high_scores[game_config]
+            self.high_scores[game_config] = self.score if self.score > current_high_score else current_high_score
+        else:
+            self.high_scores[game_config] = self.score
+
+        # Display
         title_font = pygame.font.Font(self.font_semi_bold, 35)
         font = pygame.font.Font(self.font_bold, 25)
         smaller_font = pygame.font.Font(self.font_medium, 15)
