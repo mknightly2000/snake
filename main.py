@@ -20,14 +20,15 @@ def center(obj, parent_obj):
 
     return x, y
 
+
 def center_x(obj, x):
     obj = obj.get_rect()
     return x - obj.width / 2
 
+
 def center_y(obj, y):
     obj = obj.get_rect()
     return y - obj.height / 2
-
 
 
 def select_ui(screen, x, y, selected_option, drop_down_font, label_font, width, label=None):
@@ -665,9 +666,9 @@ class Game:
         smaller_font = pygame.font.Font(self.font_medium, 15)
 
         menu_title = title_font.render("Game Over", False, (0, 0, 0))
-        your_score_title = smaller_font.render("Your Score", False, (0, 0, 0))
-        score_value = title_font.render(str(self.score), False, (255,255,255))
-        high_score_title = smaller_font.render("High Score", False, (0, 0, 0))
+        your_score_title = smaller_font.render("Your Score", False, (255, 255, 255))
+        score_value = title_font.render(str(self.score), False, (255, 255, 255))
+        high_score_title = smaller_font.render("High Score", False, (255, 255, 255))
         high_score_value = title_font.render(str(self.high_scores[game_config]), False, (255, 255, 255))
         restart_btn = font.render("Restart", False, (0, 0, 0))
         back_btn = font.render("Main Menu", False, (0, 0, 0))
@@ -689,7 +690,8 @@ class Game:
 
         self.screen.blit(menu_title, (menu_title_x, menu_title_y))
 
-        score_bg = pygame.Rect(0, first_row_y - 25, self.viewport_width, second_row_y + score_value.get_rect().height + 25 - first_row_y + 25)
+        score_bg = pygame.Rect(0, first_row_y - 25, self.viewport_width,
+                               second_row_y + score_value.get_rect().height + 25 - first_row_y + 25)
         pygame.draw.rect(self.screen, (74, 117, 44), score_bg)
         self.screen.blit(your_score_title, (center_x(your_score_title, left_col_x), first_row_y))
         self.screen.blit(score_value, (center_x(score_value, left_col_x), second_row_y))
