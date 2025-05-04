@@ -1,3 +1,4 @@
+import json
 import math
 import random
 import sys
@@ -255,7 +256,7 @@ class Game:
             self.body.appendleft(self.body[0].copy())
 
     def __init__(self):
-        # settings
+        # Settings
         self.settings = {
             "board_size" : {"label"          : "Board Size", "options": ["Small", "Medium", "Large", "Extra Large"],
                             "selected_option": "Medium"},
@@ -265,8 +266,8 @@ class Game:
             "fruit_color": {"label"          : "Fruit Color", "options": ["Red", "Blue", "Orange", "Purple"],
                             "selected_option": "Purple"},
             "num_fruits" : {"label": "Number of Fruits", "options": ["One", "Two", "Three"], "selected_option": "One"},
-            "snake_speed": {"label"          : "Snake Speed", "options": ["Slow", "Medium", "Fast", "Very Fast"],
-                            "selected_option": "Medium"},
+            "snake_speed": {"label"          : "Snake Speed", "options": ["Slow", "Moderate", "Fast", "Very Fast"],
+                            "selected_option": "Moderate"},
             "game_mode"  : {"label"          : "Game Mode", "options": ["Regular", "Infinite", "Peaceful"],
                             "selected_option": "Regular"},
             "sfx_enabled": {"label": "SFX Enabled", "options": ["Yes", "No"], "selected_option": "Yes"}
@@ -285,7 +286,7 @@ class Game:
         self.game_mode = "Regular"
         self.sfx_enabled = True
 
-        # params
+        # Params
         self.board_width = 288
         self.board_height = 432
         self.status_bar_height = 70
@@ -309,6 +310,10 @@ class Game:
         self.score = 0
         self.high_scores = {}
 
+        # Initialize
+        self.load_data()
+        self.update_game_settings()
+
         self.screen = pygame.display.set_mode((self.viewport_width, self.viewport_height))
         self.clock = pygame.time.Clock()
 
@@ -321,6 +326,28 @@ class Game:
         sound = pygame.mixer.Sound(f"sounds/{sound_name}.wav")
         sound.set_volume(volume)
         sound.play()
+
+    def save_data(self):
+        data = {
+            "settings"   : {setting_key: setting_data["selected_option"] for setting_key, setting_data in
+                            self.settings.items()},
+            "high_scores": {str(k): v for k, v in self.high_scores.items()}  # Convert frozenset keys to strings
+        }
+
+        with open('game_data.json', 'w') as f:
+            json.dump(data, f)
+
+    def load_data(self):
+        try:
+            with open('game_data.json', 'r') as f:
+                data = json.load(f)
+                for setting_key, value in data["settings"].items():
+                    self.settings[setting_key]["selected_option"] = value
+                self.high_scores = {frozenset(k[12:-2].replace("'", "").split(", ")): v for k, v in
+                                    data["high_scores"].items()}
+        except (FileNotFoundError, json.JSONDecodeError, KeyError):
+            # If file doesn't exist or is invalid, keep default values
+            pass
 
     def update_game_settings(self):
         setting_board_size = self.settings["board_size"]["selected_option"]
@@ -380,7 +407,7 @@ class Game:
         # Update snake speed
         if setting_snake_speed == "Slow":
             self.snake_speed = 6
-        elif setting_snake_speed == "Medium":
+        elif setting_snake_speed == "Moderate":
             self.snake_speed = 9
         elif setting_snake_speed == "Fast":
             self.snake_speed = 12
@@ -554,6 +581,7 @@ class Game:
                             self.settings[setting_key]["selected_option"] = self.settings[setting_key]["options"][
                                 new_selected_option_index]
 
+                            self.save_data()
                             self._play_sound("select")
                             break
                     if back_btn_rect.collidepoint(event.pos):
@@ -659,6 +687,8 @@ class Game:
             self.high_scores[game_config] = self.score if self.score > current_high_score else current_high_score
         else:
             self.high_scores[game_config] = self.score
+
+        self.save_data()
 
         # Display
         title_font = pygame.font.Font(self.font_semi_bold, 35)
