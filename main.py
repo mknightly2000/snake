@@ -666,9 +666,9 @@ class Game:
 
         menu_title = title_font.render("Game Over", False, (0, 0, 0))
         your_score_title = smaller_font.render("Your Score", False, (0, 0, 0))
-        score_value = title_font.render(str(self.score), False, (0, 0, 0))
+        score_value = title_font.render(str(self.score), False, (255,255,255))
         high_score_title = smaller_font.render("High Score", False, (0, 0, 0))
-        high_score_value = title_font.render(str(self.high_scores[game_config]), False, (0, 0, 0))
+        high_score_value = title_font.render(str(self.high_scores[game_config]), False, (255, 255, 255))
         restart_btn = font.render("Restart", False, (0, 0, 0))
         back_btn = font.render("Main Menu", False, (0, 0, 0))
 
@@ -677,21 +677,26 @@ class Game:
 
         left_col_x = 80
         right_col_x = self.viewport_width - left_col_x
-        first_row_y = 95
+        first_row_y = 110
         second_row_y = first_row_y + your_score_title.get_rect().height + 10
 
         restart_btn_x, restart_btn_y = center(restart_btn.get_rect(), self.screen.get_rect())
-        restart_btn_y -= 25
+        restart_btn_y += (-25 + (second_row_y + score_value.get_rect().height + 25) / 2)
         back_btn_x, back_btn_y = center(back_btn.get_rect(), self.screen.get_rect())
-        back_btn_y += 25
+        back_btn_y += (25 + (second_row_y + score_value.get_rect().height + 25) / 2)
 
         self.screen.fill(self.light_grass_color)
 
         self.screen.blit(menu_title, (menu_title_x, menu_title_y))
+
+        score_bg = pygame.Rect(0, first_row_y - 25, self.viewport_width, second_row_y + score_value.get_rect().height + 25 - first_row_y + 25)
+        pygame.draw.rect(self.screen, (74, 117, 44), score_bg)
         self.screen.blit(your_score_title, (center_x(your_score_title, left_col_x), first_row_y))
         self.screen.blit(score_value, (center_x(score_value, left_col_x), second_row_y))
+
         self.screen.blit(high_score_title, (center_x(high_score_title, right_col_x), first_row_y))
         self.screen.blit(high_score_value, (center_x(high_score_value, right_col_x), second_row_y))
+
         self.screen.blit(restart_btn, (restart_btn_x, restart_btn_y))
         self.screen.blit(back_btn, (back_btn_x, back_btn_y))
 
