@@ -1,3 +1,4 @@
+import json
 import math
 import random
 import sys
@@ -10,6 +11,7 @@ FPS = 60
 
 pygame.mixer.init()
 
+
 def center(obj, parent_obj):
     parent_obj_center_x = parent_obj.width / 2
     parent_obj_center_y = parent_obj.height / 2
@@ -18,6 +20,16 @@ def center(obj, parent_obj):
     y = parent_obj.y + (parent_obj_center_y - obj.height / 2)
 
     return x, y
+
+
+def center_x(obj, x):
+    obj = obj.get_rect()
+    return x - obj.width / 2
+
+
+def center_y(obj, y):
+    obj = obj.get_rect()
+    return y - obj.height / 2
 
 
 def select_ui(screen, x, y, selected_option, drop_down_font, label_font, width, label=None):
@@ -244,7 +256,7 @@ class Game:
             self.body.appendleft(self.body[0].copy())
 
     def __init__(self):
-        # settings
+        # Settings
         self.settings = {
             "board_size" : {"label"          : "Board Size", "options": ["Small", "Medium", "Large", "Extra Large"],
                             "selected_option": "Medium"},
@@ -254,11 +266,11 @@ class Game:
             "fruit_color": {"label"          : "Fruit Color", "options": ["Red", "Blue", "Orange", "Purple"],
                             "selected_option": "Purple"},
             "num_fruits" : {"label": "Number of Fruits", "options": ["One", "Two", "Three"], "selected_option": "One"},
-            "snake_speed": {"label"          : "Snake Speed", "options": ["Slow", "Medium", "Fast", "Very Fast"],
-                            "selected_option": "Medium"},
+            "snake_speed": {"label"          : "Snake Speed", "options": ["Slow", "Moderate", "Fast", "Very Fast"],
+                            "selected_option": "Moderate"},
             "game_mode"  : {"label"          : "Game Mode", "options": ["Regular", "Infinite", "Peaceful"],
                             "selected_option": "Regular"},
-            "sfx_enabled": {"label"          : "SFX Enabled", "options": ["Yes", "No"], "selected_option": "Yes"}
+            "sfx_enabled": {"label": "SFX Enabled", "options": ["Yes", "No"], "selected_option": "Yes"}
         }
 
         # Suggested cell sizes: 12, 18, 24, and 36
@@ -274,7 +286,7 @@ class Game:
         self.game_mode = "Regular"
         self.sfx_enabled = True
 
-        # params
+        # Params
         self.board_width = 288
         self.board_height = 432
         self.status_bar_height = 70
@@ -294,7 +306,14 @@ class Game:
         self.light_grass_color = (165, 207, 82)
         self.dark_grass_color = (155, 193, 77)
 
+        # Scores
+        self.game_won = False
         self.score = 0
+        self.high_scores = {}
+
+        # Initialize
+        self.load_data()
+        self.update_game_settings()
 
         self.screen = pygame.display.set_mode((self.viewport_width, self.viewport_height))
         self.clock = pygame.time.Clock()
@@ -308,6 +327,28 @@ class Game:
         sound = pygame.mixer.Sound(f"sounds/{sound_name}.wav")
         sound.set_volume(volume)
         sound.play()
+
+    def save_data(self):
+        data = {
+            "settings"   : {setting_key: setting_data["selected_option"] for setting_key, setting_data in
+                            self.settings.items()},
+            "high_scores": {str(k): v for k, v in self.high_scores.items()}  # Convert frozenset keys to strings
+        }
+
+        with open('game_data.json', 'w') as f:
+            json.dump(data, f)
+
+    def load_data(self):
+        try:
+            with open('game_data.json', 'r') as f:
+                data = json.load(f)
+                for setting_key, value in data["settings"].items():
+                    self.settings[setting_key]["selected_option"] = value
+                self.high_scores = {frozenset(k[12:-2].replace("'", "").split(", ")): v for k, v in
+                                    data["high_scores"].items()}
+        except (FileNotFoundError, json.JSONDecodeError, KeyError):
+            # If file doesn't exist or is invalid, keep default values
+            pass
 
     def update_game_settings(self):
         setting_board_size = self.settings["board_size"]["selected_option"]
@@ -367,7 +408,7 @@ class Game:
         # Update snake speed
         if setting_snake_speed == "Slow":
             self.snake_speed = 6
-        elif setting_snake_speed == "Medium":
+        elif setting_snake_speed == "Moderate":
             self.snake_speed = 9
         elif setting_snake_speed == "Fast":
             self.snake_speed = 12
@@ -409,17 +450,18 @@ class Game:
         sys.exit()
 
     def spawn_fruit(self, snake, existing_fruits):
-        # TODO: consider the state were there are not much/enough cells remaining on the board i.e. when the snake is too large.̵
-        occupied_positions = snake.body.copy()
+        all_positions = [(x, y) for x in range(self.board_dimensions[0]) for y in range(self.board_dimensions[1])]
+        occupied_positions = set((int(pos.x), int(pos.y)) for pos in snake.body)
         for fruit in existing_fruits:
-            occupied_positions.append(fruit.pos)
+            occupied_positions.add((int(fruit.pos.x), int(fruit.pos.y)))
 
-        while True:
-            x = random.randint(0, self.board_dimensions[0] - 1)
-            y = random.randint(0, self.board_dimensions[1] - 1)
-            pos = Vector2(x, y)
-            if pos not in occupied_positions:
-                return self.Fruit(self, self.fruit_color, x, y)
+        available_positions = [pos for pos in all_positions if pos not in occupied_positions]
+
+        if not available_positions:
+            return None
+
+        pos = random.choice(available_positions)
+        return self.Fruit(self, self.fruit_color, pos[0], pos[1])
 
     def draw_grass(self):
         for col in range(self.board_dimensions[0]):
@@ -541,6 +583,7 @@ class Game:
                             self.settings[setting_key]["selected_option"] = self.settings[setting_key]["options"][
                                 new_selected_option_index]
 
+                            self.save_data()
                             self._play_sound("select")
                             break
                     if back_btn_rect.collidepoint(event.pos):
@@ -551,6 +594,7 @@ class Game:
             pygame.display.update()
 
     def game(self):
+        self.game_won = False
         snake_x = math.floor(self.board_dimensions[0] * 0.15)
         snake_y = math.floor(self.board_dimensions[1] / 2)
         snake = self.Snake(self, snake_x, snake_y, 4, Vector2(1, 0), self.snake_color)
@@ -605,10 +649,18 @@ class Game:
                     for fruit in fruits[:]:
                         if snake.body[-1] == fruit.pos:
                             fruits.remove(fruit)
-                            new_fruit = self.spawn_fruit(snake, fruits)
-                            fruits.append(new_fruit)
-                            snake.grow()
                             self.score += 1
+                            new_fruit = self.spawn_fruit(snake, fruits)
+
+                            if new_fruit is not None:
+                                fruits.append(new_fruit)
+                            else:
+                                if len(fruits) == 0:
+                                    self.game_won = True
+                                    self._play_sound("win")
+                                    return "scene_game_over"
+
+                            snake.grow()
                             self._play_sound("munching")
                             break
 
@@ -633,22 +685,61 @@ class Game:
             pygame.display.update()
 
     def game_over(self):
+        # Save high score
+        game_config = frozenset([
+            self.settings["board_size"]["selected_option"],
+            self.settings["num_fruits"]["selected_option"],
+            self.settings["snake_speed"]["selected_option"],
+            self.settings["game_mode"]["selected_option"],
+        ])
+
+        if game_config in self.high_scores:
+            current_high_score = self.high_scores[game_config]
+            self.high_scores[game_config] = self.score if self.score > current_high_score else current_high_score
+        else:
+            self.high_scores[game_config] = self.score
+
+        self.save_data()
+
+        # Display
         title_font = pygame.font.Font(self.font_semi_bold, 35)
         font = pygame.font.Font(self.font_bold, 25)
+        smaller_font = pygame.font.Font(self.font_medium, 15)
 
-        menu_title = title_font.render("Game Over", False, (0, 0, 0))
+        menu_title = title_font.render("You Won" if self.game_won else "Game Over", False, (0, 0, 0))
+        your_score_title = smaller_font.render("Your Score", False, (255, 255, 255))
+        score_value = title_font.render(str(self.score), False, (255, 255, 255))
+        high_score_title = smaller_font.render("High Score", False, (255, 255, 255))
+        high_score_value = title_font.render(str(self.high_scores[game_config]), False, (255, 255, 255))
         restart_btn = font.render("Restart", False, (0, 0, 0))
         back_btn = font.render("Main Menu", False, (0, 0, 0))
 
         menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
+        menu_title_y = 20
+
+        left_col_x = 80
+        right_col_x = self.viewport_width - left_col_x
+        first_row_y = 110
+        second_row_y = first_row_y + your_score_title.get_rect().height + 10
+
         restart_btn_x, restart_btn_y = center(restart_btn.get_rect(), self.screen.get_rect())
-        restart_btn_y -= 25
+        restart_btn_y += (-25 + (second_row_y + score_value.get_rect().height + 25) / 2)
         back_btn_x, back_btn_y = center(back_btn.get_rect(), self.screen.get_rect())
-        back_btn_y += 25
+        back_btn_y += (25 + (second_row_y + score_value.get_rect().height + 25) / 2)
 
         self.screen.fill(self.light_grass_color)
 
-        self.screen.blit(menu_title, (menu_title_x, 20))
+        self.screen.blit(menu_title, (menu_title_x, menu_title_y))
+
+        score_bg = pygame.Rect(0, first_row_y - 25, self.viewport_width,
+                               second_row_y + score_value.get_rect().height + 25 - first_row_y + 25)
+        pygame.draw.rect(self.screen, (74, 117, 44), score_bg)
+        self.screen.blit(your_score_title, (center_x(your_score_title, left_col_x), first_row_y))
+        self.screen.blit(score_value, (center_x(score_value, left_col_x), second_row_y))
+
+        self.screen.blit(high_score_title, (center_x(high_score_title, right_col_x), first_row_y))
+        self.screen.blit(high_score_value, (center_x(high_score_value, right_col_x), second_row_y))
+
         self.screen.blit(restart_btn, (restart_btn_x, restart_btn_y))
         self.screen.blit(back_btn, (back_btn_x, back_btn_y))
 
