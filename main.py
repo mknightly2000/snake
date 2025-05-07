@@ -307,6 +307,7 @@ class Game:
         self.dark_grass_color = (155, 193, 77)
 
         # Scores
+        self.game_won = False
         self.score = 0
         self.high_scores = {}
 
@@ -593,6 +594,7 @@ class Game:
             pygame.display.update()
 
     def game(self):
+        self.game_won = False
         snake_x = math.floor(self.board_dimensions[0] * 0.15)
         snake_y = math.floor(self.board_dimensions[1] / 2)
         snake = self.Snake(self, snake_x, snake_y, 4, Vector2(1, 0), self.snake_color)
@@ -647,11 +649,18 @@ class Game:
                     for fruit in fruits[:]:
                         if snake.body[-1] == fruit.pos:
                             fruits.remove(fruit)
+                            self.score += 1
                             new_fruit = self.spawn_fruit(snake, fruits)
+
                             if new_fruit is not None:
                                 fruits.append(new_fruit)
+                            else:
+                                if len(fruits) == 0:
+                                    self.game_won = True
+                                    self._play_sound("win")
+                                    return "scene_game_over"
+
                             snake.grow()
-                            self.score += 1
                             self._play_sound("munching")
                             break
 
@@ -697,7 +706,7 @@ class Game:
         font = pygame.font.Font(self.font_bold, 25)
         smaller_font = pygame.font.Font(self.font_medium, 15)
 
-        menu_title = title_font.render("Game Over", False, (0, 0, 0))
+        menu_title = title_font.render("You Won" if self.game_won else "Game Over", False, (0, 0, 0))
         your_score_title = smaller_font.render("Your Score", False, (255, 255, 255))
         score_value = title_font.render(str(self.score), False, (255, 255, 255))
         high_score_title = smaller_font.render("High Score", False, (255, 255, 255))
