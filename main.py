@@ -449,17 +449,18 @@ class Game:
         sys.exit()
 
     def spawn_fruit(self, snake, existing_fruits):
-        # TODO: consider the state were there are not much/enough cells remaining on the board i.e. when the snake is too large.̵
-        occupied_positions = snake.body.copy()
+        all_positions = [(x, y) for x in range(self.board_dimensions[0]) for y in range(self.board_dimensions[1])]
+        occupied_positions = set((int(pos.x), int(pos.y)) for pos in snake.body)
         for fruit in existing_fruits:
-            occupied_positions.append(fruit.pos)
+            occupied_positions.add((int(fruit.pos.x), int(fruit.pos.y)))
 
-        while True:
-            x = random.randint(0, self.board_dimensions[0] - 1)
-            y = random.randint(0, self.board_dimensions[1] - 1)
-            pos = Vector2(x, y)
-            if pos not in occupied_positions:
-                return self.Fruit(self, self.fruit_color, x, y)
+        available_positions = [pos for pos in all_positions if pos not in occupied_positions]
+
+        if not available_positions:
+            return None
+
+        pos = random.choice(available_positions)
+        return self.Fruit(self, self.fruit_color, pos[0], pos[1])
 
     def draw_grass(self):
         for col in range(self.board_dimensions[0]):
@@ -647,7 +648,8 @@ class Game:
                         if snake.body[-1] == fruit.pos:
                             fruits.remove(fruit)
                             new_fruit = self.spawn_fruit(snake, fruits)
-                            fruits.append(new_fruit)
+                            if new_fruit is not None:
+                                fruits.append(new_fruit)
                             snake.grow()
                             self.score += 1
                             self._play_sound("munching")
