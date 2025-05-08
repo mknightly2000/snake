@@ -1,12 +1,14 @@
+import pygame
+
 FPS = 60
 
 LIGHT_GRASS_COLOR = (165, 207, 82)
 DARK_GRASS_COLOR = (155, 193, 77)
 
-FONT_REGULAR = "fonts/PixelifySans-Regular.ttf"
-FONT_MEDIUM = "fonts/PixelifySans-Medium.ttf"
-FONT_SEMI_BOLD = "fonts/PixelifySans-SemiBold.ttf"
-FONT_BOLD = "fonts/PixelifySans-Bold.ttf"
+FONT_FACE_REGULAR = "fonts/PixelifySans-Regular.ttf"
+FONT_FACE_MEDIUM = "fonts/PixelifySans-Medium.ttf"
+FONT_FACE_SEMI_BOLD = "fonts/PixelifySans-SemiBold.ttf"
+FONT_FACE_BOLD = "fonts/PixelifySans-Bold.ttf"
 
 SELECT_SOUND = "sounds/select.wav"
 MUNCHING_SOUND = "sounds/munching.wav"
@@ -20,7 +22,7 @@ LEFT_SOUND = "sounds/left.wav"
 BOARD_WIDTH = 288
 BOARD_HEIGHT = 432
 STATUS_BAR_HEIGHT = 70
-STATUS_BAR_COLOR = (74, 117, 44)
+UI_COLOR = (74, 117, 44)
 
 # Suggested cell sizes: 12, 18, 24, and 36
 # LCM(12, 18, 24) = 72

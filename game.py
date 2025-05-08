@@ -1,13 +1,10 @@
 import json
 import math
 import random
-import sys
 
 from pygame import Vector2
 
-from constants import *
 from fruit import Fruit
-from select_btn import Select_Btn
 from snake import Snake
 from utils import *
 
@@ -187,9 +184,9 @@ class Game:
 
     def _draw_status_bar(self):
         status_bar_rect = pygame.Rect(0, BOARD_HEIGHT, self.viewport_width, STATUS_BAR_HEIGHT)
-        pygame.draw.rect(self.screen, STATUS_BAR_COLOR, status_bar_rect)
+        pygame.draw.rect(self.screen, UI_COLOR, status_bar_rect)
 
-        font = pygame.font.Font(FONT_BOLD, 35)
+        font = pygame.font.Font(FONT_FACE_BOLD, 35)
         score_txt = font.render(str(self.score), False, WHITE)
         x, y = center(score_txt.get_rect(), status_bar_rect)
 
@@ -200,29 +197,11 @@ class Game:
         self.screen.fill(LIGHT_GRASS_COLOR)
         render_title(self.screen, "Main Menu")
 
-        font = pygame.font.Font(FONT_BOLD, 25)
+        btn_font = pygame.font.Font(FONT_FACE_BOLD, 25)
 
-        play_btn = font.render("Play", False, BLACK)
-        options_btn = font.render("Options", False, BLACK)
-        exit_btn = font.render("Exit", False, BLACK)
-
-
-        play_btn_x, play_btn_y = center(play_btn.get_rect(), self.screen.get_rect())
-        play_btn_y -= 50
-        options_btn_x, options_btn_y = center(options_btn.get_rect(), self.screen.get_rect())
-        exit_btn_x, exit_btn_y = center(exit_btn.get_rect(), self.screen.get_rect())
-        exit_btn_y += 50
-
-
-
-
-        self.screen.blit(play_btn, (play_btn_x, play_btn_y))
-        self.screen.blit(options_btn, (options_btn_x, options_btn_y))
-        self.screen.blit(exit_btn, (exit_btn_x, exit_btn_y))
-
-        play_btn_rect = play_btn.get_rect(topleft=(play_btn_x, play_btn_y))
-        options_btn_rect = options_btn.get_rect(topleft=(options_btn_x, options_btn_y))
-        exit_btn_rect = exit_btn.get_rect(topleft=(exit_btn_x, exit_btn_y))
+        play_btn_rect = render_centered_text(self.screen, "Play", btn_font, 0, -50, BLACK)
+        options_btn_rect = render_centered_text(self.screen, "Options", btn_font, 0, 0, BLACK)
+        exit_btn_rect = render_centered_text(self.screen, "Exit", btn_font, 0, +50, BLACK)
 
         pygame.display.update()
 
@@ -249,20 +228,14 @@ class Game:
         self.screen.fill(LIGHT_GRASS_COLOR)
         render_title(self.screen, "Options")
 
-        save_font = pygame.font.Font(FONT_BOLD, 25)
-        select_ui_font = pygame.font.Font(FONT_BOLD, 21)
-        label_font = pygame.font.Font(FONT_BOLD, 15)
+        btn_font = pygame.font.Font(FONT_FACE_BOLD, 25)
+        selected_option_font = pygame.font.Font(FONT_FACE_BOLD, 21)
+        label_font = pygame.font.Font(FONT_FACE_BOLD, 15)
 
-        dropdown_width = 200
-        dropdown_col_x = (self.viewport_width - dropdown_width) / 2
+        select_btn_width = 200
+        select_btn_margin_rl = (self.viewport_width - select_btn_width) / 2
 
-        save_btn = save_font.render("Save", False, BLACK)
-
-        back_btn_x, back_btn_y = center(save_btn.get_rect(), self.screen.get_rect())
-        back_btn_y += 214
-
-        self.screen.blit(save_btn, (back_btn_x, back_btn_y))
-        back_btn_rect = save_btn.get_rect(topleft=(back_btn_x, back_btn_y))
+        save_btn_rect = render_centered_text(self.screen, "Save", btn_font, 0, 214, BLACK)
 
         pygame.display.update()
 
@@ -274,11 +247,8 @@ class Game:
                 label = setting["label"]
                 selected_option = setting["selected_option"]
 
-                select_btn = Select_Btn(self.screen, dropdown_col_x, 100 + i * 51, dropdown_width, selected_option,
-                                        select_ui_font, label, label_font)
-                select_btn.draw()
-                select_btn_rect = select_btn.get_select_rect()
-
+                select_btn_rect = render_select_btn(self.screen, select_btn_margin_rl, 100 + i * 51, select_btn_width,
+                                                    selected_option, selected_option_font, label, label_font)
                 select_btn_rects[setting_key] = select_btn_rect
 
             for event in pygame.event.get():
@@ -302,7 +272,7 @@ class Game:
                             self._save_data()
                             play_sound(self, SELECT_SOUND)
                             break
-                    if back_btn_rect.collidepoint(event.pos):
+                    if save_btn_rect.collidepoint(event.pos):
                         self._update_game_settings()
                         play_sound(self, SELECT_SOUND)
                         return "scene_menu"
@@ -401,7 +371,7 @@ class Game:
             pygame.display.update()
 
     def _game_over_scene(self):
-        # Save high score
+        # Save the high score
         game_config = frozenset([
             self.settings["board_size"]["selected_option"],
             self.settings["num_fruits"]["selected_option"],
@@ -421,41 +391,38 @@ class Game:
         self.screen.fill(LIGHT_GRASS_COLOR)
         render_title(self.screen, "You Won" if self.game_won else "Game Over")
 
-        title_font = pygame.font.Font(FONT_SEMI_BOLD, 35)
-        font = pygame.font.Font(FONT_BOLD, 25)
-        smaller_font = pygame.font.Font(FONT_MEDIUM, 15)
+        score_title_font = pygame.font.Font(FONT_FACE_MEDIUM, 15)
+        score_font = pygame.font.Font(FONT_FACE_SEMI_BOLD, 35)
+        btn_font = pygame.font.Font(FONT_FACE_BOLD, 25)
 
-        your_score_title = smaller_font.render("Your Score", False, WHITE)
-        score_value = title_font.render(str(self.score), False, WHITE)
-        high_score_title = smaller_font.render("High Score", False, WHITE)
-        high_score_value = title_font.render(str(self.high_scores[game_config]), False, WHITE)
-        restart_btn = font.render("Restart", False, BLACK)
-        back_btn = font.render("Main Menu", False, BLACK)
+        score_bg_rect_top_y = 85
+        score_bg_rect_bottom_y = 205
+        score_bg_mid_y = (score_bg_rect_top_y + score_bg_rect_bottom_y) / 2
 
-        left_col_x = 80
-        right_col_x = self.viewport_width - left_col_x
-        first_row_y = 110
-        second_row_y = first_row_y + your_score_title.get_rect().height + 10
+        score_title_row_y = score_bg_mid_y - 25
+        score_value_row_y = score_bg_mid_y + 15
 
-        restart_btn_x, restart_btn_y = center(restart_btn.get_rect(), self.screen.get_rect())
-        restart_btn_y += (-25 + (second_row_y + score_value.get_rect().height + 25) / 2)
-        back_btn_x, back_btn_y = center(back_btn.get_rect(), self.screen.get_rect())
-        back_btn_y += (25 + (second_row_y + score_value.get_rect().height + 25) / 2)
+        score_bg_rect = pygame.Rect(0, score_bg_rect_top_y, self.viewport_width,
+                                    score_bg_rect_bottom_y - score_bg_rect_top_y)
+        pygame.draw.rect(self.screen, UI_COLOR, score_bg_rect)
 
-        score_bg = pygame.Rect(0, first_row_y - 25, self.viewport_width,
-                               second_row_y + score_value.get_rect().height + 25 - first_row_y + 25)
-        pygame.draw.rect(self.screen, (74, 117, 44), score_bg)
-        self.screen.blit(your_score_title, (center_x(your_score_title, left_col_x), first_row_y))
-        self.screen.blit(score_value, (center_x(score_value, left_col_x), second_row_y))
+        render_centered_text(self.screen, "Your Score", score_title_font, -65,
+                             score_title_row_y - self.viewport_height / 2, WHITE)
+        render_centered_text(self.screen, "High Score", score_title_font, 65,
+                             score_title_row_y - self.viewport_height / 2, WHITE)
 
-        self.screen.blit(high_score_title, (center_x(high_score_title, right_col_x), first_row_y))
-        self.screen.blit(high_score_value, (center_x(high_score_value, right_col_x), second_row_y))
+        render_centered_text(self.screen, str(self.score), score_font, -65,
+                             score_value_row_y - self.viewport_height / 2, WHITE)
+        render_centered_text(self.screen, str(self.high_scores[game_config]), score_font, 65,
+                             score_value_row_y - self.viewport_height / 2, WHITE)
 
-        self.screen.blit(restart_btn, (restart_btn_x, restart_btn_y))
-        self.screen.blit(back_btn, (back_btn_x, back_btn_y))
+        restart_btn_y_offset = (-25 + score_bg_rect_bottom_y + (
+                    self.viewport_height - score_bg_rect_bottom_y) / 2) - self.viewport_height / 2
+        restart_btn_rect = render_centered_text(self.screen, "Restart", btn_font, 0, restart_btn_y_offset, BLACK)
 
-        restart_btn_rect = restart_btn.get_rect(topleft=(restart_btn_x, restart_btn_y))
-        back_btn_rect = back_btn.get_rect(topleft=(back_btn_x, back_btn_y))
+        back_btn_y_offset = (25 + score_bg_rect_bottom_y + (
+                    self.viewport_height - score_bg_rect_bottom_y) / 2) - self.viewport_height / 2
+        back_btn_rect = render_centered_text(self.screen, "Back", btn_font, 0, back_btn_y_offset, BLACK)
 
         pygame.display.update()
 
