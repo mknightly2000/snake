@@ -6,61 +6,11 @@ import sys
 import pygame
 from pygame import Vector2
 
-from fruit import Fruit
-from snake import Snake
 from constants import *
+from fruit import Fruit
+from select_btn import Select_Btn
+from snake import Snake
 from utils import *
-
-def select_ui(screen, x, y, selected_option, drop_down_font, label_font, width, label=None):
-    """
-    Creates a dropdown component at the specified position and returns its rectangles.
-
-    Parameters:
-    - screen: Pygame surface to render on
-    - x: X-coordinate of the top-left corner
-    - y: Y-coordinate of the top-left corner
-    - options: List of strings representing the dropdown options
-    - selected_index: Index of the currently selected option
-    - is_open: Boolean indicating if the dropdown is expanded
-    - drop_down_font: Pygame font object for rendering text
-    - label_font: Pygame font object for rendering labels
-    - width: Width of the dropdown
-    - label: Optional label text
-
-    Returns:
-    - dropdown_rect: Pygame Rect of the dropdown button
-    """
-    # Calculate the maximum width based on the longest option
-    selected_text = drop_down_font.render(selected_option, False, WHITE)
-    height = selected_text.get_height()
-    select_rect = pygame.Rect(x, y, width, height)
-
-    # Render the dropdown button with the selected option
-    pygame.draw.rect(screen, (74, 117, 44), select_rect)
-    screen.blit(selected_text, (x + 10, y))
-
-    # Render the triangle
-    triangle_center_x = x + width - 17
-    triangle_center_y = y + height / 2
-    triangle_size = 7
-
-    triangle_top_x = triangle_center_x + triangle_size
-    triangle_top_y = triangle_center_y
-    triangle_left_x = triangle_center_x - triangle_size
-    triangle_left_y = triangle_center_y - triangle_size
-    triangle_right_x = triangle_center_x - triangle_size
-    triangle_right_y = triangle_center_y + triangle_size
-
-    pygame.draw.polygon(screen, WHITE, [(triangle_top_x, triangle_top_y), (triangle_left_x, triangle_left_y),
-                                                  (triangle_right_x, triangle_right_y)])
-
-    # Render label
-    if label:
-        label_text = label_font.render(label, False, BLACK)
-        label_y = y - label_text.get_height()
-        screen.blit(label_text, (x, label_y))
-
-    return select_rect
 
 
 class Game:
@@ -349,15 +299,17 @@ class Game:
         while True:
             self.clock.tick(FPS)
 
-            select_rects = {}
+            select_btn_rects = {}
             for i, (setting_key, setting) in enumerate(self.settings.items()):
                 label = setting["label"]
                 selected_option = setting["selected_option"]
 
-                select_rect = select_ui(self.screen, dropdown_col_x, 100 + i * 51, selected_option, select_ui_font,
-                                        label_font, dropdown_width, label)
+                select_btn = Select_Btn(self.screen, dropdown_col_x, 100 + i * 51, dropdown_width, selected_option,
+                                     select_ui_font, label, label_font)
+                select_btn.draw()
+                select_btn_rect = select_btn.get_select_rect()
 
-                select_rects[setting_key] = select_rect
+                select_btn_rects[setting_key] = select_btn_rect
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -367,7 +319,7 @@ class Game:
                         self._play_sound("select")
                         return "scene_game"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    for setting_key, select_rect in select_rects.items():
+                    for setting_key, select_rect in select_btn_rects.items():
                         if select_rect.collidepoint(event.pos):
                             prev_selected_option = self.settings[setting_key]["selected_option"]
                             prev_selected_option_index = self.settings[setting_key]["options"].index(
