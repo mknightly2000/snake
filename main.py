@@ -295,7 +295,7 @@ class Game:
             return None
 
         pos = random.choice(available_positions)
-        return Fruit(self, self.fruit_color, pos[0], pos[1])
+        return Fruit(self, pos[0], pos[1], self.fruit_color)
 
     def draw_grass(self):
         for col in range(self.board_dimensions[0]):
