@@ -4,16 +4,16 @@ from collections import deque
 
 
 class Snake:
-    def __init__(self, game, x, y, initial_size, initial_orientation, color):
+    def __init__(self, game, tile_x, tile_y, initial_size, initial_orientation, color):
         self.game = game
         self.color = color
         self.current_orientation = initial_orientation
         self.next_orientations = deque()
         self.body = deque()
-        self.was_moved = False  # Indicates if initial snake move was made
+        self.was_moved = False  # Indicates whether the initial snake move was made
 
         for i in range(initial_size):
-            point = Vector2(x, y) + initial_orientation * i
+            point = Vector2(tile_x, tile_y) + initial_orientation * i
             self.body.append(point)
 
     def _draw_cell(self, pos, color):
