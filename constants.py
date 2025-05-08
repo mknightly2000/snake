@@ -20,6 +20,7 @@ LEFT_SOUND = "sounds/left.wav"
 BOARD_WIDTH = 288
 BOARD_HEIGHT = 432
 STATUS_BAR_HEIGHT = 70
+STATUS_BAR_COLOR = (74, 117, 44)
 
 # Suggested cell sizes: 12, 18, 24, and 36
 # LCM(12, 18, 24) = 72

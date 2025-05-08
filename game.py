@@ -3,7 +3,6 @@ import math
 import random
 import sys
 
-import pygame
 from pygame import Vector2
 
 from constants import *
@@ -11,6 +10,7 @@ from fruit import Fruit
 from select_btn import Select_Btn
 from snake import Snake
 from utils import *
+
 
 class Game:
     def __init__(self):
@@ -53,8 +53,8 @@ class Game:
         self.high_scores = {}
 
         # Initialize
-        self.load_data()
-        self.update_game_settings()
+        self._load_data()
+        self._update_game_settings()
 
         self.screen = pygame.display.set_mode((self.viewport_width, self.viewport_height))
         self.clock = pygame.time.Clock()
@@ -63,9 +63,7 @@ class Game:
 
         pygame.init()
 
-
-
-    def save_data(self):
+    def _save_data(self):
         data = {
             "settings"   : {setting_key: setting_data["selected_option"] for setting_key, setting_data in
                             self.settings.items()},
@@ -75,7 +73,7 @@ class Game:
         with open('game_data.json', 'w') as f:
             json.dump(data, f)
 
-    def load_data(self):
+    def _load_data(self):
         try:
             with open('game_data.json', 'r') as f:
                 data = json.load(f)
@@ -87,7 +85,7 @@ class Game:
             # If file doesn't exist or is invalid, keep default values
             pass
 
-    def update_game_settings(self):
+    def _update_game_settings(self):
         setting_board_size = self.settings["board_size"]["selected_option"]
         setting_snake_color = self.settings["snake_color"]["selected_option"]
         setting_fruit_color = self.settings["fruit_color"]["selected_option"]
@@ -166,27 +164,7 @@ class Game:
         elif setting_sfx_enabled == "No":
             self.sfx_enabled = False
 
-    def run(self) -> None:
-        pygame.display.set_caption("Snake")
-
-        scene = "scene_menu"
-
-        while True:
-            if scene == "scene_menu":
-                scene = self.main_menu()
-            elif scene == "scene_options_menu":
-                scene = self.options_menu()
-            elif scene == "scene_game":
-                scene = self.game()
-            elif scene == "scene_game_over":
-                scene = self.game_over()
-
-    def exit_game(self) -> None:
-        print("Exiting...")
-        pygame.quit()
-        sys.exit()
-
-    def spawn_fruit(self, snake, existing_fruits):
+    def _spawn_fruit(self, snake, existing_fruits):
         all_positions = [(x, y) for x in range(self.board_dimensions[0]) for y in range(self.board_dimensions[1])]
         occupied_positions = set((int(pos.x), int(pos.y)) for pos in snake.body)
         for fruit in existing_fruits:
@@ -197,19 +175,19 @@ class Game:
         if not available_positions:
             return None
 
-        pos = random.choice(available_positions)
-        return Fruit(self, pos[0], pos[1], self.fruit_color)
+        tile_x, tile_y = random.choice(available_positions)
+        return Fruit(self, tile_x, tile_y, self.fruit_color)
 
-    def draw_grass(self):
+    def _draw_grass(self):
         for col in range(self.board_dimensions[0]):
             for row in range(self.board_dimensions[1]):
                 if (col + row) % 2 == 0:
                     dark_rect = pygame.Rect(col * self.cell_size, row * self.cell_size, self.cell_size, self.cell_size)
                     pygame.draw.rect(self.screen, DARK_GRASS_COLOR, dark_rect)
 
-    def draw_status_bar(self):
+    def _draw_status_bar(self):
         status_bar_rect = pygame.Rect(0, BOARD_HEIGHT, self.viewport_width, STATUS_BAR_HEIGHT)
-        pygame.draw.rect(self.screen, pygame.Color(74, 117, 44), status_bar_rect)
+        pygame.draw.rect(self.screen, STATUS_BAR_COLOR, status_bar_rect)
 
         font = pygame.font.Font(FONT_BOLD, 35)
         score_txt = font.render(str(self.score), False, WHITE)
@@ -217,25 +195,27 @@ class Game:
 
         self.screen.blit(score_txt, (x, y))
 
-    def main_menu(self):
-        title_font = pygame.font.Font(FONT_SEMI_BOLD, 35)
+    # Scenes
+    def _main_menu_scene(self):
+        self.screen.fill(LIGHT_GRASS_COLOR)
+        render_title(self.screen, "Main Menu")
+
         font = pygame.font.Font(FONT_BOLD, 25)
 
-        menu_title = title_font.render("Main Menu", False, BLACK)
         play_btn = font.render("Play", False, BLACK)
         options_btn = font.render("Options", False, BLACK)
         exit_btn = font.render("Exit", False, BLACK)
 
-        menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
+
         play_btn_x, play_btn_y = center(play_btn.get_rect(), self.screen.get_rect())
         play_btn_y -= 50
         options_btn_x, options_btn_y = center(options_btn.get_rect(), self.screen.get_rect())
         exit_btn_x, exit_btn_y = center(exit_btn.get_rect(), self.screen.get_rect())
         exit_btn_y += 50
 
-        self.screen.fill(LIGHT_GRASS_COLOR)
 
-        self.screen.blit(menu_title, (menu_title_x, 20))
+
+
         self.screen.blit(play_btn, (play_btn_x, play_btn_y))
         self.screen.blit(options_btn, (options_btn_x, options_btn_y))
         self.screen.blit(exit_btn, (exit_btn_x, exit_btn_y))
@@ -249,7 +229,7 @@ class Game:
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.exit_game()
+                    exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         play_sound(self, SELECT_SOUND)
@@ -263,10 +243,12 @@ class Game:
                         return "scene_options_menu"
                     elif exit_btn_rect.collidepoint(event.pos):
                         play_sound(self, SELECT_SOUND)
-                        self.exit_game()
+                        exit_game()
 
-    def options_menu(self):
-        title_font = pygame.font.Font(FONT_SEMI_BOLD, 35)
+    def _options_menu_scene(self):
+        self.screen.fill(LIGHT_GRASS_COLOR)
+        render_title(self.screen, "Options")
+
         save_font = pygame.font.Font(FONT_BOLD, 25)
         select_ui_font = pygame.font.Font(FONT_BOLD, 21)
         label_font = pygame.font.Font(FONT_BOLD, 15)
@@ -274,16 +256,11 @@ class Game:
         dropdown_width = 200
         dropdown_col_x = (self.viewport_width - dropdown_width) / 2
 
-        menu_title = title_font.render("Options", False, BLACK)
         save_btn = save_font.render("Save", False, BLACK)
 
-        menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
         back_btn_x, back_btn_y = center(save_btn.get_rect(), self.screen.get_rect())
         back_btn_y += 214
 
-        self.screen.fill(LIGHT_GRASS_COLOR)
-
-        self.screen.blit(menu_title, (menu_title_x, 20))
         self.screen.blit(save_btn, (back_btn_x, back_btn_y))
         back_btn_rect = save_btn.get_rect(topleft=(back_btn_x, back_btn_y))
 
@@ -306,7 +283,7 @@ class Game:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.exit_game()
+                    exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         play_sound(self, SELECT_SOUND)
@@ -322,17 +299,17 @@ class Game:
                             self.settings[setting_key]["selected_option"] = self.settings[setting_key]["options"][
                                 new_selected_option_index]
 
-                            self.save_data()
+                            self._save_data()
                             play_sound(self, SELECT_SOUND)
                             break
                     if back_btn_rect.collidepoint(event.pos):
-                        self.update_game_settings()
+                        self._update_game_settings()
                         play_sound(self, SELECT_SOUND)
                         return "scene_menu"
 
             pygame.display.update()
 
-    def game(self):
+    def _game_scene(self):
         self.game_won = False
         snake_x = math.floor(self.board_dimensions[0] * 0.15)
         snake_y = math.floor(self.board_dimensions[1] / 2)
@@ -340,7 +317,7 @@ class Game:
 
         fruits = []
         for _ in range(self.num_fruits):
-            new_fruit = self.spawn_fruit(snake, fruits)
+            new_fruit = self._spawn_fruit(snake, fruits)
             fruits.append(new_fruit)
 
         self.score = 0  # reset score
@@ -353,7 +330,7 @@ class Game:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.exit_game()
+                    exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         return "scene_menu"
@@ -389,7 +366,7 @@ class Game:
                         if snake.body[-1] == fruit.pos:
                             fruits.remove(fruit)
                             self.score += 1
-                            new_fruit = self.spawn_fruit(snake, fruits)
+                            new_fruit = self._spawn_fruit(snake, fruits)
 
                             if new_fruit is not None:
                                 fruits.append(new_fruit)
@@ -409,7 +386,7 @@ class Game:
 
             # Drawing
             self.screen.fill(LIGHT_GRASS_COLOR)
-            self.draw_grass()
+            self._draw_grass()
 
             for fruit in fruits:
                 fruit.draw()
@@ -419,11 +396,11 @@ class Game:
             else:
                 snake.draw(0)
 
-            self.draw_status_bar()
+            self._draw_status_bar()
 
             pygame.display.update()
 
-    def game_over(self):
+    def _game_over_scene(self):
         # Save high score
         game_config = frozenset([
             self.settings["board_size"]["selected_option"],
@@ -438,23 +415,22 @@ class Game:
         else:
             self.high_scores[game_config] = self.score
 
-        self.save_data()
+        self._save_data()
 
         # Display
+        self.screen.fill(LIGHT_GRASS_COLOR)
+        render_title(self.screen, "You Won" if self.game_won else "Game Over")
+
         title_font = pygame.font.Font(FONT_SEMI_BOLD, 35)
         font = pygame.font.Font(FONT_BOLD, 25)
         smaller_font = pygame.font.Font(FONT_MEDIUM, 15)
 
-        menu_title = title_font.render("You Won" if self.game_won else "Game Over", False, BLACK)
         your_score_title = smaller_font.render("Your Score", False, WHITE)
         score_value = title_font.render(str(self.score), False, WHITE)
         high_score_title = smaller_font.render("High Score", False, WHITE)
         high_score_value = title_font.render(str(self.high_scores[game_config]), False, WHITE)
         restart_btn = font.render("Restart", False, BLACK)
         back_btn = font.render("Main Menu", False, BLACK)
-
-        menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
-        menu_title_y = 20
 
         left_col_x = 80
         right_col_x = self.viewport_width - left_col_x
@@ -465,10 +441,6 @@ class Game:
         restart_btn_y += (-25 + (second_row_y + score_value.get_rect().height + 25) / 2)
         back_btn_x, back_btn_y = center(back_btn.get_rect(), self.screen.get_rect())
         back_btn_y += (25 + (second_row_y + score_value.get_rect().height + 25) / 2)
-
-        self.screen.fill(LIGHT_GRASS_COLOR)
-
-        self.screen.blit(menu_title, (menu_title_x, menu_title_y))
 
         score_bg = pygame.Rect(0, first_row_y - 25, self.viewport_width,
                                second_row_y + score_value.get_rect().height + 25 - first_row_y + 25)
@@ -490,7 +462,7 @@ class Game:
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.exit_game()
+                    exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         play_sound(self, SELECT_SOUND)
@@ -502,3 +474,18 @@ class Game:
                     elif back_btn_rect.collidepoint(event.pos):
                         play_sound(self, SELECT_SOUND)
                         return "scene_menu"
+
+    def run(self) -> None:
+        pygame.display.set_caption("Snake")
+
+        scene = "scene_menu"
+
+        while True:
+            if scene == "scene_menu":
+                scene = self._main_menu_scene()
+            elif scene == "scene_options_menu":
+                scene = self._options_menu_scene()
+            elif scene == "scene_game":
+                scene = self._game_scene()
+            elif scene == "scene_game_over":
+                scene = self._game_over_scene()
