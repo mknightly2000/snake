@@ -63,13 +63,7 @@ class Game:
 
         pygame.init()
 
-    def _play_sound(self, sound_name, volume=1.0):
-        if not self.sfx_enabled:
-            return
 
-        sound = pygame.mixer.Sound(f"sounds/{sound_name}.wav")
-        sound.set_volume(volume)
-        sound.play()
 
     def save_data(self):
         data = {
@@ -258,17 +252,17 @@ class Game:
                     self.exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        self._play_sound("select")
+                        play_sound(self, SELECT_SOUND)
                         return "scene_game"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if play_btn_rect.collidepoint(event.pos):
-                        self._play_sound("select")
+                        play_sound(self, SELECT_SOUND)
                         return "scene_game"
                     elif options_btn_rect.collidepoint(event.pos):
-                        self._play_sound("select")
+                        play_sound(self, SELECT_SOUND)
                         return "scene_options_menu"
                     elif exit_btn_rect.collidepoint(event.pos):
-                        self._play_sound("select")
+                        play_sound(self, SELECT_SOUND)
                         self.exit_game()
 
     def options_menu(self):
@@ -315,7 +309,7 @@ class Game:
                     self.exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        self._play_sound("select")
+                        play_sound(self, SELECT_SOUND)
                         return "scene_game"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     for setting_key, select_rect in select_btn_rects.items():
@@ -329,11 +323,11 @@ class Game:
                                 new_selected_option_index]
 
                             self.save_data()
-                            self._play_sound("select")
+                            play_sound(self, SELECT_SOUND)
                             break
                     if back_btn_rect.collidepoint(event.pos):
                         self.update_game_settings()
-                        self._play_sound("select")
+                        play_sound(self, SELECT_SOUND)
                         return "scene_menu"
 
             pygame.display.update()
@@ -382,7 +376,7 @@ class Game:
                     is_snake_move_successful, reason = snake.move()
                     if not is_snake_move_successful:
                         if self.sfx_enabled:
-                            self._play_sound("collision")
+                            play_sound(self, COLLISION_SOUND)
                         if reason == "border":
                             print("Game over by collision with map border.")
                         elif reason == "self":
@@ -402,11 +396,11 @@ class Game:
                             else:
                                 if len(fruits) == 0:
                                     self.game_won = True
-                                    self._play_sound("win")
+                                    play_sound(self, WIN_SOUND)
                                     return "scene_game_over"
 
                             snake.grow()
-                            self._play_sound("munching")
+                            play_sound(self, MUNCHING_SOUND)
                             break
 
                 snake_move_timer -= move_interval  # Subtract the interval to preserve any excess time
@@ -499,12 +493,12 @@ class Game:
                     self.exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        self._play_sound("select")
+                        play_sound(self, SELECT_SOUND)
                         return "scene_game"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if restart_btn_rect.collidepoint(event.pos):
-                        self._play_sound("select")
+                        play_sound(self, SELECT_SOUND)
                         return "scene_game"
                     elif back_btn_rect.collidepoint(event.pos):
-                        self._play_sound("select")
+                        play_sound(self, SELECT_SOUND)
                         return "scene_menu"

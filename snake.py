@@ -1,5 +1,7 @@
 from collections import deque
 
+from constants import *
+from utils import play_sound
 import pygame
 from pygame import Vector2
 
@@ -66,13 +68,13 @@ class Snake:
 
     def _play_orientation_sound(self, orientation):
         if orientation.x == 0 and orientation.y == 1:
-            self.game._play_sound("up", 0.4)
+            play_sound(self.game, UP_SOUND, 0.4)
         elif orientation.x == 0 and orientation.y == -1:
-            self.game._play_sound("down", 0.4)
+            play_sound(self.game, DOWN_SOUND, 0.4)
         elif orientation.x == 1 and orientation.y == 0:
-            self.game._play_sound("right", 0.4)
+            play_sound(self.game, RIGHT_SOUND, 0.4)
         elif orientation.x == -1 and orientation.y == 0:
-            self.game._play_sound("left", 0.4)
+            play_sound(self.game, LEFT_SOUND, 0.4)
 
     def orient(self, orientation):
         # Make initial move

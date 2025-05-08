@@ -8,6 +8,15 @@ FONT_MEDIUM = "fonts/PixelifySans-Medium.ttf"
 FONT_SEMI_BOLD = "fonts/PixelifySans-SemiBold.ttf"
 FONT_BOLD = "fonts/PixelifySans-Bold.ttf"
 
+SELECT_SOUND = "sounds/select.wav"
+MUNCHING_SOUND = "sounds/munching.wav"
+COLLISION_SOUND = "sounds/collision.wav"
+WIN_SOUND = "sounds/win.wav"
+UP_SOUND = "sounds/up.wav"
+DOWN_SOUND = "sounds/down.wav"
+RIGHT_SOUND = "sounds/right.wav"
+LEFT_SOUND = "sounds/left.wav"
+
 BOARD_WIDTH = 288
 BOARD_HEIGHT = 432
 STATUS_BAR_HEIGHT = 70
