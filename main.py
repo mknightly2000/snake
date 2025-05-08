@@ -8,11 +8,7 @@ from pygame import Vector2
 
 from fruit import Fruit
 from snake import Snake
-
-FPS = 60
-
-pygame.mixer.init()
-
+from constants import *
 
 def center(obj, parent_obj):
     parent_obj_center_x = parent_obj.width / 2
@@ -54,7 +50,7 @@ def select_ui(screen, x, y, selected_option, drop_down_font, label_font, width, 
     - dropdown_rect: Pygame Rect of the dropdown button
     """
     # Calculate the maximum width based on the longest option
-    selected_text = drop_down_font.render(selected_option, False, (255, 255, 255))
+    selected_text = drop_down_font.render(selected_option, False, WHITE)
     height = selected_text.get_height()
     select_rect = pygame.Rect(x, y, width, height)
 
@@ -74,12 +70,12 @@ def select_ui(screen, x, y, selected_option, drop_down_font, label_font, width, 
     triangle_right_x = triangle_center_x - triangle_size
     triangle_right_y = triangle_center_y + triangle_size
 
-    pygame.draw.polygon(screen, (255, 255, 255), [(triangle_top_x, triangle_top_y), (triangle_left_x, triangle_left_y),
+    pygame.draw.polygon(screen, WHITE, [(triangle_top_x, triangle_top_y), (triangle_left_x, triangle_left_y),
                                                   (triangle_right_x, triangle_right_y)])
 
     # Render label
     if label:
-        label_text = label_font.render(label, False, (0, 0, 0))
+        label_text = label_font.render(label, False, BLACK)
         label_y = y - label_text.get_height()
         screen.blit(label_text, (x, label_y))
 
@@ -87,8 +83,6 @@ def select_ui(screen, x, y, selected_option, drop_down_font, label_font, width, 
 
 
 class Game:
-
-
     def __init__(self):
         # Settings
         self.settings = {
@@ -107,38 +101,21 @@ class Game:
             "sfx_enabled": {"label": "SFX Enabled", "options": ["Yes", "No"], "selected_option": "Yes"}
         }
 
-        # Suggested cell sizes: 12, 18, 24, and 36
-        # LCM(12, 18, 24) = 72
-        # Playground dimensions should be multiples of 72.
-
-        self.cell_size = 24  # the width and length of a cell in the board
-
-        self.snake_color = (255, 0, 0)
-        self.fruit_color = (184, 130, 238)
+        self.cell_size = CELL_SIZE_MEDIUM  # the width and length of a cell in the board
+        self.snake_color = SNAKE_COLOR_RED
+        self.fruit_color = FRUIT_COLOR_PURPLE
         self.num_fruits = 1
-        self.snake_speed = 9
+        self.snake_speed = SNAKE_SPEED_MODERATE
         self.game_mode = "Regular"
         self.sfx_enabled = True
 
         # Params
-        self.board_width = 288
-        self.board_height = 432
-        self.status_bar_height = 70
+        self.viewport_width = BOARD_WIDTH
+        self.viewport_height = BOARD_HEIGHT + STATUS_BAR_HEIGHT
 
-        self.viewport_width = self.board_width
-        self.viewport_height = self.board_height + self.status_bar_height
-
-        board_num_cells_x_direction = self.board_width // self.cell_size
-        board_num_cells_y_direction = self.board_height // self.cell_size
+        board_num_cells_x_direction = BOARD_WIDTH // self.cell_size
+        board_num_cells_y_direction = BOARD_HEIGHT // self.cell_size
         self.board_dimensions = (board_num_cells_x_direction, board_num_cells_y_direction)
-
-        self.font_regular = "fonts/PixelifySans-Regular.ttf"
-        self.font_medium = "fonts/PixelifySans-Medium.ttf"
-        self.font_semi_bold = "fonts/PixelifySans-SemiBold.ttf"
-        self.font_bold = "fonts/PixelifySans-Bold.ttf"
-
-        self.light_grass_color = (165, 207, 82)
-        self.dark_grass_color = (155, 193, 77)
 
         # Scores
         self.game_won = False
@@ -151,6 +128,8 @@ class Game:
 
         self.screen = pygame.display.set_mode((self.viewport_width, self.viewport_height))
         self.clock = pygame.time.Clock()
+
+        pygame.mixer.init()
 
         pygame.init()
 
@@ -195,41 +174,41 @@ class Game:
 
         # Update board size
         if setting_board_size == "Small":
-            self.cell_size = 36
+            self.cell_size = CELL_SIZE_SMALL
         elif setting_board_size == "Medium":
-            self.cell_size = 24
+            self.cell_size = CELL_SIZE_MEDIUM
         elif setting_board_size == "Large":
-            self.cell_size = 18
+            self.cell_size = CELL_SIZE_LARGE
         elif setting_board_size == "Extra Large":
-            self.cell_size = 12
+            self.cell_size = CELL_SIZE_EXTRA_LARGE
 
-        board_num_cells_x_direction = self.board_width // self.cell_size
-        board_num_cells_y_direction = self.board_height // self.cell_size
+        board_num_cells_x_direction = BOARD_WIDTH // self.cell_size
+        board_num_cells_y_direction = BOARD_HEIGHT // self.cell_size
         self.board_dimensions = (board_num_cells_x_direction, board_num_cells_y_direction)
 
         # Update snake color
         if setting_snake_color == "Red":
-            self.snake_color = (255, 0, 0)
+            self.snake_color = SNAKE_COLOR_RED
         elif setting_snake_color == "Blue":
-            self.snake_color = (0, 0, 255)
+            self.snake_color = SNAKE_COLOR_BLUE
         elif setting_snake_color == "Orange":
-            self.snake_color = (255, 180, 0)
+            self.snake_color = SNAKE_COLOR_ORANGE
         elif setting_snake_color == "Pink":
-            self.snake_color = (178, 0, 211)
+            self.snake_color = SNAKE_COLOR_PINK
         elif setting_snake_color == "White":
-            self.snake_color = (217, 220, 238)
+            self.snake_color = SNAKE_COLOR_WHITE
         elif setting_snake_color == "Black":
-            self.snake_color = (50, 50, 50)
+            self.snake_color = SNAKE_COLOR_BLACK
 
         # Update fruit color
         if setting_fruit_color == "Red":
-            self.fruit_color = (212, 76, 77)
+            self.fruit_color = FRUIT_COLOR_RED
         elif setting_fruit_color == "Blue":
-            self.fruit_color = (140, 156, 200)
+            self.fruit_color = FRUIT_COLOR_BLUE
         elif setting_fruit_color == "Orange":
-            self.fruit_color = (208, 125, 0)
+            self.fruit_color = FRUIT_COLOR_ORANGE
         elif setting_fruit_color == "Purple":
-            self.fruit_color = (184, 130, 238)
+            self.fruit_color = FRUIT_COLOR_PURPLE
 
         # Update number of fruits
         if setting_num_fruits == "One":
@@ -241,13 +220,13 @@ class Game:
 
         # Update snake speed
         if setting_snake_speed == "Slow":
-            self.snake_speed = 6
+            self.snake_speed = SNAKE_SPEED_SLOW
         elif setting_snake_speed == "Moderate":
-            self.snake_speed = 9
+            self.snake_speed = SNAKE_SPEED_MODERATE
         elif setting_snake_speed == "Fast":
-            self.snake_speed = 12
+            self.snake_speed = SNAKE_SPEED_FAST
         elif setting_snake_speed == "Very Fast":
-            self.snake_speed = 15
+            self.snake_speed = SNAKE_SPEED_VERY_FAST
 
         # Update game mode
         if setting_game_mode == "Regular":
@@ -302,26 +281,26 @@ class Game:
             for row in range(self.board_dimensions[1]):
                 if (col + row) % 2 == 0:
                     dark_rect = pygame.Rect(col * self.cell_size, row * self.cell_size, self.cell_size, self.cell_size)
-                    pygame.draw.rect(self.screen, self.dark_grass_color, dark_rect)
+                    pygame.draw.rect(self.screen, DARK_GRASS_COLOR, dark_rect)
 
     def draw_status_bar(self):
-        status_bar_rect = pygame.Rect(0, self.board_height, self.viewport_width, self.status_bar_height)
+        status_bar_rect = pygame.Rect(0, BOARD_HEIGHT, self.viewport_width, STATUS_BAR_HEIGHT)
         pygame.draw.rect(self.screen, pygame.Color(74, 117, 44), status_bar_rect)
 
-        font = pygame.font.Font(self.font_bold, 35)
-        score_txt = font.render(str(self.score), False, (255, 255, 255))
+        font = pygame.font.Font(FONT_BOLD, 35)
+        score_txt = font.render(str(self.score), False, WHITE)
         x, y = center(score_txt.get_rect(), status_bar_rect)
 
         self.screen.blit(score_txt, (x, y))
 
     def main_menu(self):
-        title_font = pygame.font.Font(self.font_semi_bold, 35)
-        font = pygame.font.Font(self.font_bold, 25)
+        title_font = pygame.font.Font(FONT_SEMI_BOLD, 35)
+        font = pygame.font.Font(FONT_BOLD, 25)
 
-        menu_title = title_font.render("Main Menu", False, (0, 0, 0))
-        play_btn = font.render("Play", False, (0, 0, 0))
-        options_btn = font.render("Options", False, (0, 0, 0))
-        exit_btn = font.render("Exit", False, (0, 0, 0))
+        menu_title = title_font.render("Main Menu", False, BLACK)
+        play_btn = font.render("Play", False, BLACK)
+        options_btn = font.render("Options", False, BLACK)
+        exit_btn = font.render("Exit", False, BLACK)
 
         menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
         play_btn_x, play_btn_y = center(play_btn.get_rect(), self.screen.get_rect())
@@ -330,7 +309,7 @@ class Game:
         exit_btn_x, exit_btn_y = center(exit_btn.get_rect(), self.screen.get_rect())
         exit_btn_y += 50
 
-        self.screen.fill(self.light_grass_color)
+        self.screen.fill(LIGHT_GRASS_COLOR)
 
         self.screen.blit(menu_title, (menu_title_x, 20))
         self.screen.blit(play_btn, (play_btn_x, play_btn_y))
@@ -363,22 +342,22 @@ class Game:
                         self.exit_game()
 
     def options_menu(self):
-        title_font = pygame.font.Font(self.font_semi_bold, 35)
-        save_font = pygame.font.Font(self.font_bold, 25)
-        select_ui_font = pygame.font.Font(self.font_bold, 21)
-        label_font = pygame.font.Font(self.font_bold, 15)
+        title_font = pygame.font.Font(FONT_SEMI_BOLD, 35)
+        save_font = pygame.font.Font(FONT_BOLD, 25)
+        select_ui_font = pygame.font.Font(FONT_BOLD, 21)
+        label_font = pygame.font.Font(FONT_BOLD, 15)
 
         dropdown_width = 200
         dropdown_col_x = (self.viewport_width - dropdown_width) / 2
 
-        menu_title = title_font.render("Options", False, (0, 0, 0))
-        save_btn = save_font.render("Save", False, (0, 0, 0))
+        menu_title = title_font.render("Options", False, BLACK)
+        save_btn = save_font.render("Save", False, BLACK)
 
         menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
         back_btn_x, back_btn_y = center(save_btn.get_rect(), self.screen.get_rect())
         back_btn_y += 214
 
-        self.screen.fill(self.light_grass_color)
+        self.screen.fill(LIGHT_GRASS_COLOR)
 
         self.screen.blit(menu_title, (menu_title_x, 20))
         self.screen.blit(save_btn, (back_btn_x, back_btn_y))
@@ -503,7 +482,7 @@ class Game:
             snake_interpolation_fraction = snake_move_timer / move_interval  # A value between 0 and 1, indicating progress towards the next move
 
             # Drawing
-            self.screen.fill(self.light_grass_color)
+            self.screen.fill(LIGHT_GRASS_COLOR)
             self.draw_grass()
 
             for fruit in fruits:
@@ -536,17 +515,17 @@ class Game:
         self.save_data()
 
         # Display
-        title_font = pygame.font.Font(self.font_semi_bold, 35)
-        font = pygame.font.Font(self.font_bold, 25)
-        smaller_font = pygame.font.Font(self.font_medium, 15)
+        title_font = pygame.font.Font(FONT_SEMI_BOLD, 35)
+        font = pygame.font.Font(FONT_BOLD, 25)
+        smaller_font = pygame.font.Font(FONT_MEDIUM, 15)
 
-        menu_title = title_font.render("You Won" if self.game_won else "Game Over", False, (0, 0, 0))
-        your_score_title = smaller_font.render("Your Score", False, (255, 255, 255))
-        score_value = title_font.render(str(self.score), False, (255, 255, 255))
-        high_score_title = smaller_font.render("High Score", False, (255, 255, 255))
-        high_score_value = title_font.render(str(self.high_scores[game_config]), False, (255, 255, 255))
-        restart_btn = font.render("Restart", False, (0, 0, 0))
-        back_btn = font.render("Main Menu", False, (0, 0, 0))
+        menu_title = title_font.render("You Won" if self.game_won else "Game Over", False, BLACK)
+        your_score_title = smaller_font.render("Your Score", False, WHITE)
+        score_value = title_font.render(str(self.score), False, WHITE)
+        high_score_title = smaller_font.render("High Score", False, WHITE)
+        high_score_value = title_font.render(str(self.high_scores[game_config]), False, WHITE)
+        restart_btn = font.render("Restart", False, BLACK)
+        back_btn = font.render("Main Menu", False, BLACK)
 
         menu_title_x = center(menu_title.get_rect(), self.screen.get_rect())[0]
         menu_title_y = 20
@@ -561,7 +540,7 @@ class Game:
         back_btn_x, back_btn_y = center(back_btn.get_rect(), self.screen.get_rect())
         back_btn_y += (25 + (second_row_y + score_value.get_rect().height + 25) / 2)
 
-        self.screen.fill(self.light_grass_color)
+        self.screen.fill(LIGHT_GRASS_COLOR)
 
         self.screen.blit(menu_title, (menu_title_x, menu_title_y))
 
