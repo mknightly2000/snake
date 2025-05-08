@@ -1,6 +1,7 @@
+from collections import deque
+
 import pygame
 from pygame import Vector2
-from collections import deque
 
 
 class Snake:
@@ -18,12 +19,11 @@ class Snake:
 
     def _draw_cell(self, pos, color):
         """Draw a single cell at the given position."""
-        cell_rect = pygame.Rect(
-            pos.x * self.game.cell_size,
-            pos.y * self.game.cell_size,
-            self.game.cell_size,
-            self.game.cell_size
-        )
+        x = pos.x * self.game.cell_size
+        y = pos.y * self.game.cell_size
+
+        cell_rect = pygame.Rect(x, y, self.game.cell_size, self.game.cell_size)
+
         pygame.draw.rect(self.game.screen, color, cell_rect)
 
     def _generate_color_gradient_list(self):
@@ -47,7 +47,7 @@ class Snake:
         else:
             prev_cell = self.body[i - 1]
             next_cell = self.body[i + 1]
-            
+
             if prev_cell.x != next_cell.x and prev_cell.y != next_cell.y:
                 return "corner"
             else:
