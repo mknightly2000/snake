@@ -268,11 +268,10 @@ class Game:
                                 self.settings[setting_key]["options"])
                             self.settings[setting_key]["selected_option"] = self.settings[setting_key]["options"][
                                 new_selected_option_index]
-
-                            self._save_data()
                             play_sound(self, SELECT_SOUND)
                             break
                     if save_btn_rect.collidepoint(event.pos):
+                        self._save_data()
                         self._update_game_settings()
                         play_sound(self, SELECT_SOUND)
                         return "scene_menu"
