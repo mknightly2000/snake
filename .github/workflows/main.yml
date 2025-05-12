@@ -38,10 +38,10 @@ jobs:
       - name: Build executable
         run: |
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            pyinstaller --noconfirm --onefile --noconsole `
-              --add-data "fonts;fonts" `
-              --add-data "sounds;sounds" `
-              --name SnakeGame `
+            pyinstaller --noconfirm --onefile --noconsole \
+              --add-data "fonts;fonts" \
+              --add-data "sounds;sounds" \
+              --name SnakeGame \
               main.py
           else
             pyinstaller --noconfirm --onefile --noconsole \
