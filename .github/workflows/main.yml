@@ -1,4 +1,4 @@
-name: Build and Release SnakeGame
+name: Build and Release
 
 on:
   workflow_dispatch:
@@ -41,13 +41,13 @@ jobs:
             pyinstaller --noconfirm --onefile --noconsole \
               --add-data "fonts;fonts" \
               --add-data "sounds;sounds" \
-              --name SnakeGame \
+              --name Snake \
               main.py
           else
             pyinstaller --noconfirm --onefile --noconsole \
               --add-data "fonts:fonts" \
               --add-data "sounds:sounds" \
-              --name SnakeGame \
+              --name Snake \
               main.py
           fi
         shell: bash
@@ -55,11 +55,11 @@ jobs:
       - name: Rename executable
         run: |
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            mv dist/SnakeGame.exe dist/SnakeGame-windows.exe
+            mv dist/Snake.exe dist/Snake-windows.exe
           elif [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-            mv dist/SnakeGame dist/SnakeGame-linux
+            mv dist/Snake dist/Snake-linux
           elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-            mv dist/SnakeGame dist/SnakeGame-macos
+            mv dist/Snake dist/Snake-macos
           fi
         shell: bash
 
@@ -67,9 +67,9 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: |
           if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-            zip dist/SnakeGame-linux.zip dist/SnakeGame-linux
+            zip dist/Snake-linux.zip dist/Snake-linux
           elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-            zip dist/SnakeGame-macos.zip dist/SnakeGame-macos
+            zip dist/Snake-macos.zip dist/Snake-macos
           fi
 
         shell: bash
@@ -77,8 +77,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SnakeGame-${{ matrix.os }}
-          path: dist/SnakeGame-${{ matrix.os == 'windows-latest' && 'windows.exe' || matrix.os == 'ubuntu-latest' && 'linux.zip' || 'macos.zip' }}
+          name: Snake-${{ matrix.os }}
+          path: dist/Snake-${{ matrix.os == 'windows-latest' && 'windows.exe' || matrix.os == 'ubuntu-latest' && 'linux.zip' || 'macos.zip' }}
           
 
   release:
@@ -93,19 +93,19 @@ jobs:
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
         with:
-          name: SnakeGame-windows-latest
+          name: Snake-windows-latest
           path: dist/windows
 
       - name: Download Linux artifact
         uses: actions/download-artifact@v4
         with:
-          name: SnakeGame-ubuntu-latest
+          name: Snake-ubuntu-latest
           path: dist/linux
 
       - name: Download macOS artifact
         uses: actions/download-artifact@v4
         with:
-          name: SnakeGame-macos-latest
+          name: Snake-macos-latest
           path: dist/macos
 
       - name: List downloaded files (Debugging)
@@ -113,25 +113,21 @@ jobs:
 
       # - name: Make Linux/macOS files executable
       #   run: |
-      #     chmod +x dist/linux/SnakeGame-linux || true
-      #     chmod +x dist/macos/SnakeGame-macos || true
+      #     chmod +x dist/linux/Snake-linux || true
+      #     chmod +x dist/macos/Snake-macos || true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.version || format('v{0}', github.run_number) }}
-          name: SnakeGame Release ${{ github.event.inputs.version || format('v{0}', github.run_number) }}
+          name: Snake Release ${{ github.event.inputs.version || format('v{0}', github.run_number) }}
           draft: false
           prerelease: false
           body: |
-            SnakeGame release for Windows, Linux, and macOS.
-            - Windows: SnakeGame-windows.exe
-            - Linux: SnakeGame-linux
-            - macOS: SnakeGame-macos
-            - Changelog: See commit history
+            Snake release for Windows, Linux, and macOS.
           files: |
-            dist/windows/SnakeGame-windows.exe
-            dist/linux/SnakeGame-linux.zip
-            dist/macos/SnakeGame-macos.zip
+            dist/windows/Snake-windows.exe
+            dist/linux/Snake-linux.zip
+            dist/macos/Snake-macos.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
