@@ -1,3 +1,12 @@
+import os
+import sys
+
+def resource_path(relative_path):
+    """Get the absolute path to a resource."""
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
+
 FPS = 60
 
 # Colors for the game board and UI
@@ -7,19 +16,19 @@ UI_COLOR = (74, 117, 44)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
-FONT_FACE_REGULAR = "fonts/PixelifySans-Regular.ttf"
-FONT_FACE_MEDIUM = "fonts/PixelifySans-Medium.ttf"
-FONT_FACE_SEMI_BOLD = "fonts/PixelifySans-SemiBold.ttf"
-FONT_FACE_BOLD = "fonts/PixelifySans-Bold.ttf"
+FONT_FACE_REGULAR = resource_path("fonts/PixelifySans-Regular.ttf")
+FONT_FACE_MEDIUM = resource_path("fonts/PixelifySans-Medium.ttf")
+FONT_FACE_SEMI_BOLD = resource_path("fonts/PixelifySans-SemiBold.ttf")
+FONT_FACE_BOLD = resource_path("fonts/PixelifySans-Bold.ttf")
 
-CLICK_SOUND = "sounds/click.wav"
-MUNCHING_SOUND = "sounds/munching.wav"
-COLLISION_SOUND = "sounds/collision.wav"
-WIN_SOUND = "sounds/win.wav"
-UP_SOUND = "sounds/up.wav"
-DOWN_SOUND = "sounds/down.wav"
-RIGHT_SOUND = "sounds/right.wav"
-LEFT_SOUND = "sounds/left.wav"
+CLICK_SOUND = resource_path("sounds/click.wav")
+MUNCHING_SOUND = resource_path("sounds/munching.wav")
+COLLISION_SOUND = resource_path("sounds/collision.wav")
+WIN_SOUND = resource_path("sounds/win.wav")
+UP_SOUND = resource_path("sounds/up.wav")
+DOWN_SOUND = resource_path("sounds/down.wav")
+RIGHT_SOUND = resource_path("sounds/right.wav")
+LEFT_SOUND = resource_path("sounds/left.wav")
 
 # Board dimensions should be multiples of 72.
 BOARD_WIDTH = 288
