@@ -2,15 +2,19 @@ import pygame
 
 FPS = 60
 
+# Colors for the game board and UI
 LIGHT_GRASS_COLOR = (165, 207, 82)
 DARK_GRASS_COLOR = (155, 193, 77)
+UI_COLOR = (74, 117, 44)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
 
 FONT_FACE_REGULAR = "fonts/PixelifySans-Regular.ttf"
 FONT_FACE_MEDIUM = "fonts/PixelifySans-Medium.ttf"
 FONT_FACE_SEMI_BOLD = "fonts/PixelifySans-SemiBold.ttf"
 FONT_FACE_BOLD = "fonts/PixelifySans-Bold.ttf"
 
-SELECT_SOUND = "sounds/select.wav"
+CLICK_SOUND = "sounds/click.wav"
 MUNCHING_SOUND = "sounds/munching.wav"
 COLLISION_SOUND = "sounds/collision.wav"
 WIN_SOUND = "sounds/win.wav"
@@ -19,14 +23,12 @@ DOWN_SOUND = "sounds/down.wav"
 RIGHT_SOUND = "sounds/right.wav"
 LEFT_SOUND = "sounds/left.wav"
 
+# Board dimensions should be multiples of 72.
 BOARD_WIDTH = 288
 BOARD_HEIGHT = 432
 STATUS_BAR_HEIGHT = 70
-UI_COLOR = (74, 117, 44)
 
-# Suggested cell sizes: 12, 18, 24, and 36
-# LCM(12, 18, 24) = 72
-# Playground dimensions should be multiples of 72.
+# Suggested cell sizes: 12, 18, 24, and 36; LCM(12, 18, 24) = 72
 CELL_SIZE_SMALL = 36
 CELL_SIZE_MEDIUM = 24
 CELL_SIZE_LARGE = 18
@@ -48,6 +50,3 @@ SNAKE_SPEED_SLOW = 6
 SNAKE_SPEED_MODERATE = 9
 SNAKE_SPEED_FAST = 12
 SNAKE_SPEED_VERY_FAST = 15
-
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)

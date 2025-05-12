@@ -211,17 +211,17 @@ class Game:
                     exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        play_sound(self, SELECT_SOUND)
+                        play_sound(self, CLICK_SOUND)
                         return "scene_game"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if play_btn_rect.collidepoint(event.pos):
-                        play_sound(self, SELECT_SOUND)
+                        play_sound(self, CLICK_SOUND)
                         return "scene_game"
                     elif options_btn_rect.collidepoint(event.pos):
-                        play_sound(self, SELECT_SOUND)
+                        play_sound(self, CLICK_SOUND)
                         return "scene_options_menu"
                     elif exit_btn_rect.collidepoint(event.pos):
-                        play_sound(self, SELECT_SOUND)
+                        play_sound(self, CLICK_SOUND)
                         exit_game()
 
     def _options_menu_scene(self):
@@ -256,7 +256,7 @@ class Game:
                     exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        play_sound(self, SELECT_SOUND)
+                        play_sound(self, CLICK_SOUND)
                         return "scene_game"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     for setting_key, select_rect in select_btn_rects.items():
@@ -268,12 +268,12 @@ class Game:
                                 self.settings[setting_key]["options"])
                             self.settings[setting_key]["selected_option"] = self.settings[setting_key]["options"][
                                 new_selected_option_index]
-                            play_sound(self, SELECT_SOUND)
+                            play_sound(self, CLICK_SOUND)
                             break
                     if save_btn_rect.collidepoint(event.pos):
                         self._save_data()
                         self._update_game_settings()
-                        play_sound(self, SELECT_SOUND)
+                        play_sound(self, CLICK_SOUND)
                         return "scene_menu"
 
             pygame.display.update()
@@ -431,14 +431,14 @@ class Game:
                     exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        play_sound(self, SELECT_SOUND)
+                        play_sound(self, CLICK_SOUND)
                         return "scene_game"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if restart_btn_rect.collidepoint(event.pos):
-                        play_sound(self, SELECT_SOUND)
+                        play_sound(self, CLICK_SOUND)
                         return "scene_game"
                     elif back_btn_rect.collidepoint(event.pos):
-                        play_sound(self, SELECT_SOUND)
+                        play_sound(self, CLICK_SOUND)
                         return "scene_menu"
 
     def run(self) -> None:
