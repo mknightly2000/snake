@@ -79,6 +79,7 @@ jobs:
         with:
           name: SnakeGame-${{ matrix.os }}
           path: dist/SnakeGame-${{ matrix.os == 'windows-latest' && 'windows.exe' || matrix.os == 'ubuntu-latest' && 'linux.zip' || 'macos.zip' }}
+          
 
   release:
     needs: build
@@ -110,10 +111,10 @@ jobs:
       - name: List downloaded files (Debugging)
         run: ls -R dist
 
-      - name: Make Linux/macOS files executable
-        run: |
-          chmod +x dist/linux/SnakeGame-linux || true
-          chmod +x dist/macos/SnakeGame-macos || true
+      # - name: Make Linux/macOS files executable
+      #   run: |
+      #     chmod +x dist/linux/SnakeGame-linux || true
+      #     chmod +x dist/macos/SnakeGame-macos || true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -130,7 +131,7 @@ jobs:
             - Changelog: See commit history
           files: |
             dist/windows/SnakeGame-windows.exe
-            dist/linux/SnakeGame-linux
-            dist/macos/SnakeGame-macos
+            dist/linux/SnakeGame-linux.zip
+            dist/macos/SnakeGame-macos.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
