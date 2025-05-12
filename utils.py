@@ -136,18 +136,18 @@ def render_select_btn(screen, x, y, width, selected_option, selected_option_font
     return select_rect
 
 
-def play_sound(game, sound_file_name, volume=1.0):
+def play_sound(game, sound_file_path, volume=1.0):
     """Play a sound effect if sound is enabled.
 
     Args:
         game: The Game instance containing sound settings.
-        sound_file_name (str): The path to the sound file.
+        sound_file_path (str): The path to the sound file.
         volume (float): The volume level (0.0 to 1.0).
     """
     if not game.sfx_enabled:
         return
 
-    sound = pygame.mixer.Sound(sound_file_name)
+    sound = pygame.mixer.Sound(sound_file_path)
     sound.set_volume(volume)
     sound.play()
 

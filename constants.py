@@ -1,5 +1,3 @@
-import pygame
-
 FPS = 60
 
 # Colors for the game board and UI
