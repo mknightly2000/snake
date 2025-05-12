@@ -66,7 +66,12 @@ jobs:
       - name: Zip executable (Linux and macOS only)
         if: matrix.os != 'windows-latest'
         run: |
-          zip dist/SnakeGame-${{ env.PLATFORM }}.zip dist/SnakeGame-${{ env.PLATFORM }}
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            zip dist/SnakeGame-linux.zip dist/SnakeGame-linux
+          elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+            zip dist/SnakeGame-macos.zip dist/SnakeGame-macos
+          fi
+
         shell: bash
 
       - name: Upload artifact
