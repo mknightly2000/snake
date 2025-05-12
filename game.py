@@ -264,7 +264,7 @@ class Game:
         """Display and handle the main menu scene.
 
         Returns:
-            str: The next scene to transition to ("scene_game", "scene_options_menu").
+            str: The next scene to transition to ("game_scene", "options_menu_scene").
         """
         self.screen.fill(LIGHT_GRASS_COLOR)
         render_title(self.screen, "Main Menu")
@@ -284,14 +284,14 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         play_sound(self, CLICK_SOUND)
-                        return "scene_game"
+                        return "game_scene"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if play_btn_rect.collidepoint(event.pos):
                         play_sound(self, CLICK_SOUND)
-                        return "scene_game"
+                        return "game_scene"
                     elif options_btn_rect.collidepoint(event.pos):
                         play_sound(self, CLICK_SOUND)
-                        return "scene_options_menu"
+                        return "options_menu_scene"
                     elif exit_btn_rect.collidepoint(event.pos):
                         play_sound(self, CLICK_SOUND)
                         exit_game()
@@ -302,7 +302,7 @@ class Game:
         Allows players to configure game settings.
 
         Returns:
-            str: The next scene to transition to ("scene_game", "scene_menu").
+            str: The next scene to transition to ("game_scene", "main_menu_scene").
         """
 
         self.screen.fill(LIGHT_GRASS_COLOR)
@@ -337,7 +337,7 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         play_sound(self, CLICK_SOUND)
-                        return "scene_game"
+                        return "game_scene"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     for setting_key, select_rect in select_btn_rects.items():
                         if select_rect.collidepoint(event.pos):
@@ -354,7 +354,7 @@ class Game:
                         self._save_data()
                         self._update_game_settings()
                         play_sound(self, CLICK_SOUND)
-                        return "scene_menu"
+                        return "main_menu_scene"
 
             pygame.display.update()
 
@@ -364,7 +364,7 @@ class Game:
         Manages snake movement, fruit collection, and game over conditions.
 
         Returns:
-            str: The next scene to transition to ("scene_menu", "scene_game_over").
+            str: The next scene to transition to ("main_menu_scene", "game_over_scene").
         """
         self.game_won = False
         snake_x = math.floor(self.board_dimensions[0] * 0.15)
@@ -389,7 +389,7 @@ class Game:
                     exit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        return "scene_menu"
+                        return "main_menu_scene"
                     elif event.key == pygame.K_w or event.key == pygame.K_UP:
                         snake.orient(Vector2(0, -1))
                     elif event.key == pygame.K_s or event.key == pygame.K_DOWN:
@@ -415,7 +415,7 @@ class Game:
                         elif reason == "self":
                             print("Game over by collision with self.")
 
-                        return "scene_game_over"
+                        return "game_over_scene"
 
                     # Collision detection with fruits
                     for fruit in fruits[:]:
@@ -430,7 +430,7 @@ class Game:
                                 if len(fruits) == 0:
                                     self.game_won = True
                                     play_sound(self, WIN_SOUND)
-                                    return "scene_game_over"
+                                    return "game_over_scene"
 
                             snake.grow()
                             play_sound(self, MUNCHING_SOUND)
@@ -460,7 +460,7 @@ class Game:
         """Display the game over screen with score and high score.
 
         Returns:
-            str: The next scene to transition to ("scene_game", "scene_menu").
+            str: The next scene to transition to ("game_scene", "main_menu_scene").
         """
 
         # Save the high score
@@ -525,28 +525,28 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         play_sound(self, CLICK_SOUND)
-                        return "scene_game"
+                        return "game_scene"
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if restart_btn_rect.collidepoint(event.pos):
                         play_sound(self, CLICK_SOUND)
-                        return "scene_game"
+                        return "game_scene"
                     elif back_btn_rect.collidepoint(event.pos):
                         play_sound(self, CLICK_SOUND)
-                        return "scene_menu"
+                        return "main_menu_scene"
 
     def run(self) -> None:
         """Run the main game loop, transitioning between scenes."""
 
         pygame.display.set_caption("Snake")
 
-        scene = "scene_menu"
+        scene = "main_menu_scene"
 
         while True:
-            if scene == "scene_menu":
+            if scene == "main_menu_scene":
                 scene = self._main_menu_scene()
-            elif scene == "scene_options_menu":
+            elif scene == "options_menu_scene":
                 scene = self._options_menu_scene()
-            elif scene == "scene_game":
+            elif scene == "game_scene":
                 scene = self._game_scene()
-            elif scene == "scene_game_over":
+            elif scene == "game_over_scene":
                 scene = self._game_over_scene()
