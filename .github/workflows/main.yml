@@ -1,4 +1,4 @@
-name: Build and Release SnakeGame
+name: Build and Release
 
 on:
   workflow_dispatch:
@@ -35,19 +35,29 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
 
+      - name: Set platform name
+        run: |
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            echo "PLATFORM=linux" >> $GITHUB_ENV
+          elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            echo "PLATFORM=windows" >> $GITHUB_ENV
+          elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+            echo "PLATFORM=macos" >> $GITHUB_ENV
+          fi
+
       - name: Build executable
         run: |
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             pyinstaller --noconfirm --onefile --noconsole \
               --add-data "fonts;fonts" \
               --add-data "sounds;sounds" \
-              --name SnakeGame \
+              --name Snake \
               main.py
           else
             pyinstaller --noconfirm --onefile --noconsole \
               --add-data "fonts:fonts" \
               --add-data "sounds:sounds" \
-              --name SnakeGame \
+              --name Snake \
               main.py
           fi
         shell: bash
@@ -55,19 +65,24 @@ jobs:
       - name: Rename executable
         run: |
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            mv dist/SnakeGame.exe dist/SnakeGame-windows.exe
-          elif [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-            mv dist/SnakeGame dist/SnakeGame-linux
-          elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-            mv dist/SnakeGame dist/SnakeGame-macos
+            mv dist/Snake.exe dist/Snake-${{ env.PLATFORM }}.exe
+          else
+            mv dist/Snake dist/Snake-${{ env.PLATFORM }}
           fi
+        shell: bash
+
+      - name: Zip executable (Linux and macOS only)
+        if: matrix.os != 'windows-latest'
+        run: |
+          zip dist/Snake-${{ env.PLATFORM }}.zip dist/Snake-${{ env.PLATFORM }}
         shell: bash
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SnakeGame-${{ matrix.os }}
-          path: dist/SnakeGame-${{ matrix.os == 'windows-latest' && 'windows.exe' || matrix.os == 'ubuntu-latest' && 'linux' || 'macos' }}
+          name: Snake-${{ env.PLATFORM }}-artifact
+          path: |
+            ${{ matrix.os == 'windows-latest' && 'dist/Snake-windows.exe' || 'dist/Snake-${{ env.PLATFORM }}.zip' }}
 
   release:
     needs: build
@@ -81,45 +96,39 @@ jobs:
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
         with:
-          name: SnakeGame-windows-latest
-          path: dist/windows
+          name: Snake-windows-artifact
+          path: dist
 
       - name: Download Linux artifact
         uses: actions/download-artifact@v4
         with:
-          name: SnakeGame-ubuntu-latest
-          path: dist/linux
+          name: Snake-linux-artifact
+          path: dist
 
       - name: Download macOS artifact
         uses: actions/download-artifact@v4
         with:
-          name: SnakeGame-macos-latest
-          path: dist/macos
+          name: Snake-macos-artifact
+          path: dist
 
       - name: List downloaded files (Debugging)
         run: ls -R dist
-
-      - name: Make Linux/macOS files executable
-        run: |
-          chmod +x dist/linux/SnakeGame-linux || true
-          chmod +x dist/macos/SnakeGame-macos || true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.version || format('v{0}', github.run_number) }}
-          name: SnakeGame Release ${{ github.event.inputs.version || format('v{0}', github.run_number) }}
+          name: Snake Release ${{ github.event.inputs.version || format('v{0}', github.run_number) }}
           draft: false
           prerelease: false
           body: |
-            SnakeGame release for Windows, Linux, and macOS.
-            - Windows: SnakeGame-windows.exe
-            - Linux: SnakeGame-linux
-            - macOS: SnakeGame-macos
-            - Changelog: See commit history
+            Snake release for Windows, Linux, and macOS.
+            - Windows: Download Snake-windows.exe and run directly
+            - Linux: Download Snake-linux.zip and extract Snake-linux
+            - macOS: Download Snake-macos.zip and extract Snake-macos
           files: |
-            dist/windows/SnakeGame-windows.exe
-            dist/linux/SnakeGame-linux
-            dist/macos/SnakeGame-macos
+            dist/Snake-windows.exe
+            dist/Snake-linux.zip
+            dist/Snake-macos.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
