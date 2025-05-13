@@ -24,19 +24,19 @@ python3 main.py
 
 ## How to Play
 When you start the game, you'll see a main menu with the following options: Play, Options, and Exit.
-- Play: Starts a new game with the current settings.
-- Options: Allows you to customize the game, including:
-  - Board Size: Small, Medium, Large, or Extra Large.s
-  - Snake Color: Red, Blue, Orange, Pink, White, or Black. 
-  - Fruit Color: Red, Blue, Orange, or Purple. 
-  - Number of Fruits: One, Two, or Three. 
-  - Snake Speed: Slow, Moderate, Fast, or Very Fast. 
-  - Game Mode:
-    - Regular: Game ends on collision with borders or the snake itself. 
-    - Infinite: Snake wraps around the board edges; the game only ends when the snake collides with itself.
-    - Peaceful: Snake wraps around edges and cannot collide with itself. 
-  - SFX Enabled: Toggle sound effects. 
-- Exit: Closes the game.
+- **Play**: Starts a new game with the current settings.
+- **Options**: Allows you to customize the game, including:
+  - **Board Size**: Small, Medium, Large, or Extra Large.
+  - **Snake Color**: Red, Blue, Orange, Pink, White, or Black. 
+  - **Fruit Color**: Red, Blue, Orange, or Purple. 
+  - **Number of Fruits**: One, Two, or Three. 
+  - **Snake Speed**: Slow, Moderate, Fast, or Very Fast. 
+  - **Game Mode**:
+    - **Regular**: Game ends on collision with borders or the snake itself. 
+    - **Infinite**: Snake wraps around the board edges; the game only ends when the snake collides with itself.
+    - **Peaceful**: Snake wraps around edges and cannot collide with itself. 
+  - **SFX Enabled**: Toggle sound effects. 
+- **Exit**: Closes the game.
 
 ### Gameplay
 - Use the WASD or arrow keys to control the snake's movement direction (up, down, left, right). 
