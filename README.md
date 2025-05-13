@@ -3,9 +3,13 @@
 This is an implementation of the classic Snake game using Python and the Pygame library. It features a graphical interface with customizable settings, multiple game modes, sound effects, and a high-score system.
 
 ## Table of Contents
+- [Demo](#demo)
 - [Setup](#setup)
 - [How to Play](#how-to-play)
 - [Code Structure](#code-structure)
+
+## Demo
+<img src="gameplay.gif" alt="Snake Gameplay Demo" width="300"/>
 
 ## Setup
 To run this game, you need Python 3.8 or later.
