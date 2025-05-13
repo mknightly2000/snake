@@ -58,5 +58,9 @@ The game is organized into several Python modules, with the main logic encapsula
 - `constants.py`: Defines game constants, such as colors, board dimensions, cell sizes, sound file paths, and font file paths.
 - `main.py`: Entry point that initializes and runs the `Game` instance.
 
+## Credits
+- **Sound Effects**: All sound effects (click, munching, collision, win, and directional sounds) were generated using *[jsfxr](https://pro.sfxr.me)*, a web-based tool for creating 8-bit sound effects. 
+- **Font**: The game uses the *[Pixelify Sans](https://github.com/eifetx/Pixelify-Sans)* font, licensed under the Open Font License (OFL). The font's license is attached under [`fonts/OFL.txt`](fonts/OFL.txt).
+
 ##
 [Back to Top](#top)
